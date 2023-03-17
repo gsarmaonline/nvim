@@ -25,7 +25,7 @@ Plugin 'mileszs/ack.vim'
 Plugin 'rust-lang/rust.vim'
 Plugin 'lepture/vim-jinja'
 Plugin 'hashivim/vim-terraform'
-
+Plugin 'vim-airline/vim-airline'
 
 call vundle#end()            " required
 " filetype plugin indent on    " required
