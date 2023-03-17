@@ -26,6 +26,7 @@ Plugin 'rust-lang/rust.vim'
 Plugin 'lepture/vim-jinja'
 Plugin 'hashivim/vim-terraform'
 Plugin 'vim-airline/vim-airline'
+Plugin 'davidhalter/jedi-vim'
 
 call vundle#end()            " required
 " filetype plugin indent on    " required
@@ -131,3 +132,8 @@ set noswapfile
 "let g:ctrlp_map = '<c-p>'
 "let g:ctrlp_cmd = 'CtrlP .'
 "let g:ctrlp_working_path_mode = 'ra'
+
+let g:jedi#completions_enabled = 0
+let g:jedi#use_splits_not_buffers = "right"
+let g:python3_host_prog = '/Users/gsarma/.pyenv/shims/python3'
+

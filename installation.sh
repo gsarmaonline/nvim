@@ -1,6 +1,7 @@
 #!/bin/bash
 
 brew install neovim
+pip3 install pynvim
 mkdir -p ~/.config/nvim/bundle/
 cp init.vim ~/.config/nvim/init.vim
 
