@@ -1,2 +1,2 @@
-# nvim
+# Nvim
 Nvim dev environment
