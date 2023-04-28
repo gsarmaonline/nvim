@@ -11,3 +11,5 @@ alias vim=/usr/bin/vim
 
 alias vim="NVIM_LISTEN_ADDRESS=/tmp/nvim-socket nvim"
 alias search="grep -rin"
+alias pyvim="python3 nvim/vimpy/vim_mgr.py @"
+alias pyvim-cli="python3 nvim/vimpy/vim_mgr.py @"

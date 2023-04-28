@@ -1,5 +1,7 @@
 import json
-import pynvim, neovim
+import os
+import sys
+import pynvim
 from pynvim import attach
 from cmd_mgr import CommandManager
 from vim_helper import VimHelper
@@ -10,11 +12,19 @@ TERM_LINE_PREFIX = ">> "
 
 class Vimpy:
     def __init__(self, *args, **kwargs):
-        self.socket: str = kwargs.get("socket", "/tmp/nvim-socket")
+        self.curr_folder: str = kwargs.get("curr_folder", os.getcwd())
+        self.socket: str = self._get_socket_for_folder() 
+
         self.nvim = attach('socket', path=self.socket)
         self.cmd_mgr: "CommandManager" = CommandManager()
         self.vim_helper: "VimHelper" = VimHelper()
+
         self._add_commands()
+
+    def _get_socket_for_folder(self) -> str:
+        socket_path: str = "/tmp/nvim-socket"
+        # TODO: Insert logic to iterate through sockets prefixed with curr_folder hash
+        return socket_path
 
     def _add_commands(self):
         self.cmd_mgr.add("get_windows", self._get_curr_windows)
@@ -22,7 +32,8 @@ class Vimpy:
         self.cmd_mgr.add("search", self._search)
 
     def _get_curr_folder(self) -> str:
-        return "app/eta"
+        # TODO: Get curr folder of the buffer
+        return "app"
 
     def _search(self, search_args: list):
         search_folder: Optional[str] = None
@@ -57,10 +68,11 @@ class Vimpy:
                 print(e)
 
     def run(self):
-        nvim = neovim.attach('child', argv=['nvim', '-u', 'NONE', '--embed'])
-        #self._start_inp_loop()
+        self._start_inp_loop()
 
 
 if __name__ == "__main__":
-    vimpy: "Vimpy" = Vimpy()
+    curr_folder: str = sys.argv[1]
+    print(f"Starting VimPy CLI on {curr_folder}")
+    vimpy: "Vimpy" = Vimpy(curr_folder=curr_folder)
     vimpy.run()
