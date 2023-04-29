@@ -4,15 +4,19 @@ import sys
 import pynvim
 from pynvim import attach
 from cmd_mgr import CommandManager
+from common import NVIM_SOCKET_FOLDER, NVIM_SOCKET_FILE_NAME_PREFIX, generate_uuid
 from vim_helper import VimHelper
 from typing import Optional
 
 TERM_LINE_PREFIX = ">> "
 
+class SocketNotFound(Exception): pass
 
-class Vimpy:
+
+class VimpyCli:
     def __init__(self, *args, **kwargs):
         self.curr_folder: str = kwargs.get("curr_folder", os.getcwd())
+        self.curr_folder_hash: str = generate_uuid(base_str=self.curr_folder)
         self.socket: str = self._get_socket_for_folder() 
 
         self.nvim = attach('socket', path=self.socket)
@@ -22,8 +26,12 @@ class Vimpy:
         self._add_commands()
 
     def _get_socket_for_folder(self) -> str:
-        socket_path: str = "/tmp/nvim-socket"
-        # TODO: Insert logic to iterate through sockets prefixed with curr_folder hash
+        socket_path: str
+        for file_name in os.listdir(NVIM_SOCKET_FOLDER):
+            if f"{NVIM_SOCKET_FILE_NAME_PREFIX}-{self.curr_folder_hash}" in file_name:
+                socket_path = f"{NVIM_SOCKET_FOLDER}/{file_name}" 
+        if socket_path is None:
+            raise SocketNotFound("Socket not found. Check if the vimpy is running in the appropriate folder")
         return socket_path
 
     def _add_commands(self):
@@ -72,7 +80,10 @@ class Vimpy:
 
 
 if __name__ == "__main__":
-    curr_folder: str = sys.argv[1]
+    curr_folder: str = os.getcwd()
+    if len(sys.argv) > 1:
+        curr_folder = sys.argv[1]
+
     print(f"Starting VimPy CLI on {curr_folder}")
-    vimpy: "Vimpy" = Vimpy(curr_folder=curr_folder)
+    vimpy: "VimpyCli" = VimpyCli(curr_folder=curr_folder)
     vimpy.run()
