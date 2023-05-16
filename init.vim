@@ -27,6 +27,11 @@ Plugin 'lepture/vim-jinja'
 Plugin 'hashivim/vim-terraform'
 Plugin 'vim-airline/vim-airline'
 Plugin 'davidhalter/jedi-vim'
+Plugin 'bling/vim-bufferline'
+Plugin 'nvim-lua/plenary.nvim'
+Plugin 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
+Plugin 'nvim-treesitter/nvim-treesitter'
+Plugin 'sharkdp/fd'
 
 call vundle#end()            " required
 " filetype plugin indent on    " required
@@ -116,7 +121,6 @@ nmap <C-p> :FZF<CR>
 imap <C-p> :FZF<CR>
 
 nnoremap <Leader>f :Ack! <cword><CR><Space>
-nnoremap <Leader>f :Ack! <cword><CR><Space>
 
 nnoremap <leader>t :CtrlPTag<return>
 nnoremap <leader>h :noh<return><esc>
@@ -136,4 +140,10 @@ set noswapfile
 let g:jedi#completions_enabled = 0
 let g:jedi#use_splits_not_buffers = "right"
 let g:python3_host_prog = '/Users/gsarma/.pyenv/shims/python3'
+
+" Find files using Telescope command-line sugar.
+nnoremap <leader>ff <cmd>Telescope find_files<cr>
+nnoremap <leader>fg <cmd>Telescope live_grep<cr>
+nnoremap <leader>fb <cmd>Telescope buffers<cr>
+nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 
