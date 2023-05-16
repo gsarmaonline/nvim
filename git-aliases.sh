@@ -1,4 +1,4 @@
-
+alias gic='git commit --no-verify'
 alias gis='git status'
 alias gil='git log'
 alias gib='git branch'
@@ -7,3 +7,4 @@ alias gid='git diff'
 alias gidc='git diff --cached'
 alias gipl='git pull -r origin'
 alias gips='git push origin'
+alias pr_create="gh pr create"
