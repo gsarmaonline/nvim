@@ -1,6 +1,11 @@
 # Nvim
 Nvim dev environment
 
+## Adding support for a new language
+- Download the required binary which is used to define the LSP
+- Setup the lspconfig in `mason_vim.lua`
+- Add autocomplete capabilities in `nvim_cmp_nvim.lua`
+
 ## Installation
 
 ### Macbook

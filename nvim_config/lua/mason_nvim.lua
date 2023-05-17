@@ -3,6 +3,7 @@ require("mason").setup()
 require("mason-lspconfig").setup()
 
 require'lspconfig'.gopls.setup{}
+require'lspconfig'.terraformls.setup{}
 require'lspconfig'.pylsp.setup{
   settings = {
     pylsp = {
