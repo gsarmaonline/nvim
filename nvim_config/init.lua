@@ -60,6 +60,7 @@ Plugin 'nvim-lua/plenary.nvim'
 Plugin 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
 Plugin 'nvim-treesitter/nvim-treesitter'
 Plugin 'sharkdp/fd'
+Plugin 'lewis6991/gitsigns.nvim'
 
 call vundle#end()            " required
 " filetype plugin indent on    " required
@@ -155,3 +156,4 @@ nnoremap <leader>f :execute 'Telescope live_grep default_text=' . expand('<cword
 ]])
 
 require("telescope_nvim")
+require("gitsigns_nvim")
