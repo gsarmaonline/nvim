@@ -136,9 +136,11 @@ nmap <leader>ss :wq<CR>
 imap <leader>s <Esc>:w<CR>i
 imap <leader>ss <Esc>:wq<CR>
 
-" Fzf key bindings
-nmap <C-p> :FZF<CR>
-imap <C-p> :FZF<CR>
+" Bindings to find files and find strings
+nmap <C-p> :Telescope find_files<CR>
+imap <C-p> :Telescope find_files<CR>
+nmap <C-f> :Telescope live_grep<CR>
+imap <C-f> :Telescope live_grep<CR>
 
 nnoremap <Leader>f :Ack! <cword><CR><Space>
 
