@@ -136,14 +136,6 @@ nmap <leader>ss :wq<CR>
 imap <leader>s <Esc>:w<CR>i
 imap <leader>ss <Esc>:wq<CR>
 
-" Bindings to find files and find strings
-nmap <C-p> :Telescope find_files<CR>
-imap <C-p> :Telescope find_files<CR>
-nmap <C-f> :Telescope live_grep<CR>
-imap <C-f> :Telescope live_grep<CR>
-
-nnoremap <Leader>f :Ack! <cword><CR><Space>
-
 nnoremap <leader>t :CtrlPTag<return>
 nnoremap <leader>h :noh<return><esc>
 noremap <leader>a ggVG
@@ -153,6 +145,12 @@ nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
 nnoremap <leader>fb <cmd>Telescope buffers<cr>
 nnoremap <leader>fh <cmd>Telescope help_tags<cr>
+" Bindings to find files and find strings
+nmap <C-p> :Telescope find_files<CR>
+imap <C-p> :Telescope find_files<CR>
+nmap <C-f> :Telescope live_grep<CR>
+imap <C-f> :Telescope live_grep<CR>
+nnoremap <leader>f :execute 'Telescope live_grep default_text=' . expand('<cword>')<cr>
 
 ]])
 
