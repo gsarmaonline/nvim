@@ -3,7 +3,7 @@
 brew install neovim
 pip3 install pynvim
 mkdir -p ~/.config/nvim/bundle/
-cp init.vim ~/.config/nvim/init.vim
+cp init.lua ~/.config/nvim/init.lua
 
 cp git-completion.sh ~/.git-completion.sh
 cp git-aliases.sh ~/.git-aliases.sh
