@@ -54,13 +54,15 @@ Plugin 'rust-lang/rust.vim'
 Plugin 'lepture/vim-jinja'
 Plugin 'hashivim/vim-terraform'
 Plugin 'vim-airline/vim-airline'
-Plugin 'davidhalter/jedi-vim'
+"Plugin 'davidhalter/jedi-vim'
 Plugin 'bling/vim-bufferline'
 Plugin 'nvim-lua/plenary.nvim'
 Plugin 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
 Plugin 'nvim-treesitter/nvim-treesitter'
 Plugin 'sharkdp/fd'
 Plugin 'lewis6991/gitsigns.nvim'
+Plugin 'williamboman/mason.nvim', { 'do': ':MasonUpdate' }
+Plugin 'williamboman/mason-lspconfig.nvim'
 Plugin 'neovim/nvim-lspconfig'
 
 call vundle#end()            " required
@@ -104,9 +106,9 @@ autocmd BufEnter * if bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_
 
 -- Global config for installed plugins
 vim.g.go_fmt_autosave = 1
-vim.g["jedi#completions_enabled"] = 0
-vim.g["jedi#use_splits_not_buffers"] = "right"
-vim.g["python3_host_prog"] = '/Users/gsarma/.pyenv/shims/python3'
+--vim.g["jedi#completions_enabled"] = 0
+--vim.g["jedi#use_splits_not_buffers"] = "right"
+--vim.g["python3_host_prog"] = '/Users/gsarma/.pyenv/shims/python3'
 
 -- Key mappings
 vim.cmd([[
@@ -162,5 +164,6 @@ nnoremap <leader>f :execute 'Telescope live_grep default_text=' . expand('<cword
 
 ]])
 
+require("mason_nvim")
 require("telescope_nvim")
 require("gitsigns_nvim")
