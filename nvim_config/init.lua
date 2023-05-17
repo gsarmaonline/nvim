@@ -47,7 +47,7 @@ Plugin 'joonty/vim-taggatron'
 Plugin 'maksimr/vim-jsbeautify'
 Plugin 'mxw/vim-jsx'
 Plugin 'junegunn/fzf'
-Plugin 'fatih/vim-go'
+Plugin 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
 Plugin 'jremmen/vim-ripgrep'
 Plugin 'mileszs/ack.vim'
 Plugin 'rust-lang/rust.vim'
@@ -61,6 +61,7 @@ Plugin 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
 Plugin 'nvim-treesitter/nvim-treesitter'
 Plugin 'sharkdp/fd'
 Plugin 'lewis6991/gitsigns.nvim'
+Plugin 'neovim/nvim-lspconfig'
 
 call vundle#end()            " required
 " filetype plugin indent on    " required
@@ -79,7 +80,6 @@ filetype indent on
 
 autocmd FileType * set tabstop=2|set softtabstop=2|set shiftwidth=2|set expandtab|set autoindent
 autocmd BufNewFile,BufRead *.go setlocal ts=4 sw=4 sts=4
-autocmd FileType go setlocal ts=4 sw=4 sts=4
 autocmd FileType rs setlocal ts=4 sw=4 sts=4
 autocmd FileType python set tabstop=4|set softtabstop=4|set shiftwidth=4|set expandtab|set autoindent
 autocmd FileType ruby set tabstop=2|set softtabstop=2|set shiftwidth=2|set expandtab|set autoindent
@@ -88,6 +88,13 @@ autocmd FileType css set tabstop=2|set softtabstop=2|set shiftwidth=2|set expand
 autocmd FileType scss set tabstop=2|set softtabstop=2|set shiftwidth=2|set expandtab|set autoindent
 autocmd FileType html set tabstop=2|set softtabstop=2|set shiftwidth=2|set expandtab|set autoindent
 autocmd FileType erb set tabstop=2|set softtabstop=2|set shiftwidth=2|set expandtab|set autoindent
+
+" Golang configuration
+autocmd FileType go setlocal ts=4 sw=4 sts=4
+autocmd FileType go nmap <leader>b  <Plug>(go-build)
+autocmd FileType go nmap <leader>r  <Plug>(go-run)
+autocmd FileType go nmap <leader>t  <Plug>(go-test)
+
 autocmd BufEnter * if bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
     \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
 "autocmd StdinReadPre * let s:std_in=1
