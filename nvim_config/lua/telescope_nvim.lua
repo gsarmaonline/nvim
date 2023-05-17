@@ -14,6 +14,9 @@ require('telescope').setup{
   pickers = {
     colorscheme = {
        theme = "industry",
+    },
+    find_files = {
+      theme = "dropdown",
     }
   },
   extensions = {
