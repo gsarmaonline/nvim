@@ -64,6 +64,11 @@ Plugin 'lewis6991/gitsigns.nvim'
 Plugin 'williamboman/mason.nvim', { 'do': ':MasonUpdate' }
 Plugin 'williamboman/mason-lspconfig.nvim'
 Plugin 'neovim/nvim-lspconfig'
+Plugin 'hrsh7th/cmp-nvim-lsp'
+Plugin 'hrsh7th/cmp-buffer'
+Plugin 'hrsh7th/cmp-path'
+Plugin 'hrsh7th/cmp-cmdline'
+Plugin 'hrsh7th/nvim-cmp'
 
 call vundle#end()            " required
 " filetype plugin indent on    " required
@@ -165,5 +170,6 @@ nnoremap <leader>f :execute 'Telescope live_grep default_text=' . expand('<cword
 ]])
 
 require("mason_nvim")
+require("nvim_cmp_nvim")
 require("telescope_nvim")
 require("gitsigns_nvim")
