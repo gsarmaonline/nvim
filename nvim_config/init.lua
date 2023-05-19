@@ -69,6 +69,11 @@ Plugin 'hrsh7th/cmp-buffer'
 Plugin 'hrsh7th/cmp-path'
 Plugin 'hrsh7th/cmp-cmdline'
 Plugin 'hrsh7th/nvim-cmp'
+Plugin 'hrsh7th/vim-vsnip'
+Plugin 'hrsh7th/vim-vsnip-integ'
+
+" call vundle#add('hrsh7th/vim-vsnip')
+" call vundle#add('hrsh7th/vim-vsnip-integ')
 
 call vundle#end()            " required
 " filetype plugin indent on    " required
