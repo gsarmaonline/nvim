@@ -72,6 +72,7 @@ Plugin 'hrsh7th/nvim-cmp'
 Plugin 'hrsh7th/vim-vsnip'
 Plugin 'hrsh7th/vim-vsnip-integ'
 Plugin 'nicwest/vim-camelsnek'
+Plugin 'vincent178/nvim-github-linker'
 
 " call vundle#add('hrsh7th/vim-vsnip')
 " call vundle#add('hrsh7th/vim-vsnip-integ')
@@ -179,3 +180,4 @@ require("mason_nvim")
 require("nvim_cmp_nvim")
 require("telescope_nvim")
 require("gitsigns_nvim")
+require("github_linker_nvim")
