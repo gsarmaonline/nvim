@@ -73,6 +73,7 @@ Plugin 'hrsh7th/vim-vsnip'
 Plugin 'hrsh7th/vim-vsnip-integ'
 Plugin 'nicwest/vim-camelsnek'
 Plugin 'vincent178/nvim-github-linker'
+Plugin 'nvim-telescope/telescope-live-grep-args.nvim'
 
 " call vundle#add('hrsh7th/vim-vsnip')
 " call vundle#add('hrsh7th/vim-vsnip-integ')
@@ -171,9 +172,9 @@ nnoremap <leader>fh <cmd>Telescope help_tags<cr>
 " Bindings to find files and find strings
 nmap <C-p> :Telescope find_files<CR>
 imap <C-p> :Telescope find_files<CR>
-nmap <C-f> :Telescope live_grep<CR>
-imap <C-f> :Telescope live_grep<CR>
-nnoremap <leader>f :execute 'Telescope live_grep default_text=' . expand('<cword>')<cr>
+nmap <C-f> :Telescope live_grep_args<CR>
+imap <C-f> :Telescope live_grep_args<CR>
+nnoremap <leader>f :execute 'Telescope live_grep_args default_text=' . expand('<cword>')<cr>
 
 ]])
 
