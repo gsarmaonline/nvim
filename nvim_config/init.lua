@@ -158,9 +158,10 @@ nmap <leader>ss :wq<CR>
 imap <leader>s <Esc>:w<CR>i
 imap <leader>ss <Esc>:wq<CR>
 
-nnoremap <leader>t :CtrlPTag<return>
 nnoremap <leader>h :noh<return><esc>
 noremap <leader>a ggVG
+
+noremap <leader>link :GithubLink<CR>
 
 " Find files using Telescope command-line sugar.
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
