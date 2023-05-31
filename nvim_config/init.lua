@@ -74,6 +74,10 @@ Plugin 'hrsh7th/vim-vsnip-integ'
 Plugin 'nicwest/vim-camelsnek'
 Plugin 'vincent178/nvim-github-linker'
 Plugin 'nvim-telescope/telescope-live-grep-args.nvim'
+Plugin 'github/copilot.vim'
+Plugin 'mfussenegger/nvim-dap'
+Plugin 'leoluz/nvim-dap-go'
+Plugin 'rcarriga/nvim-dap-ui'
 
 " call vundle#add('hrsh7th/vim-vsnip')
 " call vundle#add('hrsh7th/vim-vsnip-integ')
@@ -183,3 +187,4 @@ require("nvim_cmp_nvim")
 require("telescope_nvim")
 require("gitsigns_nvim")
 require("github_linker_nvim")
+require('dap_go_nvim')

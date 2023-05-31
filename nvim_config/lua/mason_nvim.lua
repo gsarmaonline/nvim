@@ -2,7 +2,19 @@
 require("mason").setup()
 require("mason-lspconfig").setup()
 
-require'lspconfig'.gopls.setup{}
+require'lspconfig'.gopls.setup{
+  cmd = {"gopls"},
+  filetypes = { "go", "gomod", "gowork", "gotmpl" },
+  settings = {
+    gopls = {
+      completeUnimported = true,
+      usePlaceholders = true,
+      analyses = {
+        unusedparams = true,
+      },
+    },
+  },
+}
 require'lspconfig'.terraformls.setup{}
 require'lspconfig'.pylsp.setup{
   settings = {
