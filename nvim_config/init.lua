@@ -118,6 +118,7 @@ autocmd BufEnter * if bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_
     \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
 "autocmd StdinReadPre * let s:std_in=1
 "autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
+autocmd BufEnter * let g:copilot#enabled = 1
 ]])
 
 
@@ -180,6 +181,8 @@ nmap <C-f> :Telescope live_grep_args<CR>
 imap <C-f> :Telescope live_grep_args<CR>
 nnoremap <leader>f :execute 'Telescope live_grep_args default_text=' . expand('<cword>')<cr>
 
+nmap <leader>pilot :Copilot enable<CR>
+nmap <leader>nopilot :Copilot disable<CR>
 ]])
 
 require("mason_nvim")
@@ -188,3 +191,4 @@ require("telescope_nvim")
 require("gitsigns_nvim")
 require("github_linker_nvim")
 require('dap_go_nvim')
+
