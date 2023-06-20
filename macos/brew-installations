@@ -1,2 +1,3 @@
 brew install fd
 brew install neovim
+brew install jdtls
