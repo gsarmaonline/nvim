@@ -29,7 +29,6 @@ vim.opt.swapfile = false
 
 -- Install the required plugins 
 vim.cmd([[
-filetype off                  " required
 
 " set the runtime path to include Vundle and initialize
 call vundle#begin()
@@ -78,14 +77,13 @@ Plugin 'github/copilot.vim'
 Plugin 'mfussenegger/nvim-dap'
 Plugin 'leoluz/nvim-dap-go'
 Plugin 'rcarriga/nvim-dap-ui'
+Plugin 'mfussenegger/nvim-jdtls'
 
 " call vundle#add('hrsh7th/vim-vsnip')
 " call vundle#add('hrsh7th/vim-vsnip-integ')
 
 call vundle#end()            " required
-" filetype plugin indent on    " required
 " " To ignore plugin indent changes, instead use:
-" "filetype plugin on
 "
 ]])
 
