@@ -12,8 +12,10 @@ cp bash-aliases.sh ~/.bash-aliases.sh
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.config/nvim/bundle/Vundle.vim
 nvim -c 'PluginInstall' -c 'qa!'
 
-echo "source ~/.git-completion.sh" >> ~/.bashrc
-echo "source ~/.git-aliases.sh" >> ~/.bashrc
+sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
+
+cp ~/.zshrc ~/.zshrc.bak
+mv zshrc ~/.zshrc
 
 # For git status coloring
 git config --global color.ui true

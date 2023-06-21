@@ -1,3 +1,10 @@
+if [ ! -d .git ]
+then
+    echo "Not a git repository"
+    return
+fi
+
+
 alias gic='git commit --no-verify'
 alias gich='git checkout'
 alias gis='git status'

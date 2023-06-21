@@ -6,6 +6,9 @@ Nvim dev environment
 - Setup the lspconfig in `mason_vim.lua`
 - Add autocomplete capabilities in `nvim_cmp_nvim.lua`
 
+## ZSH configurations
+- Download zsh-completions
+
 ## Installation
 
 ### Macbook

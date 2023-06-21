@@ -12,8 +12,8 @@ function vimpycli() {
   python3 ~/Work/github-projects/nvim/vimpy/vimpy_cli.py "$@"
 }
 
-setopt PROMPT_SUBST
-export PROMPT='%F{grey}%n%f %F{cyan}%~%f %F{green}$(parse_git_branch)%f %F{normal}$%f '
+#setopt PROMPT_SUBST
+#export PROMPT='%F{grey}%n%f %F{cyan}%~%f %F{green}$(parse_git_branch)%f %F{normal}$%f '
 
 alias vim="NVIM_LISTEN_ADDRESS=/tmp/nvim-socket nvim"
 alias search="grep -rin"
