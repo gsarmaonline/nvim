@@ -8,6 +8,7 @@ Nvim dev environment
 
 ## ZSH configurations
 - Download zsh-completions
+- Download oh my zsh
 
 ## Installation
 
