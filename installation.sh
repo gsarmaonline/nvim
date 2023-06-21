@@ -8,6 +8,7 @@ cp -Rf nvim.custom/* ~/.config/nvim/
 cp git-completion.sh ~/.git-completion.sh
 cp git-aliases.sh ~/.git-aliases.sh
 cp bash-aliases.sh ~/.bash-aliases.sh
+cp work-aliases.sh ~/.work-aliases.sh
 
 git clone https://github.com/VundleVim/Vundle.vim.git ~/.config/nvim/bundle/Vundle.vim
 nvim -c 'PluginInstall' -c 'qa!'
