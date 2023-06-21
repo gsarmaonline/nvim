@@ -84,6 +84,7 @@ Plugin 'nvim-tree/nvim-web-devicons'
 Plugin 'MunifTanjim/nui.nvim'
 Plugin 'stevearc/aerial.nvim'
 Plugin 'stevearc/oil.nvim'
+Plugin 'jinh0/eyeliner.nvim'
 
 " call vundle#add('hrsh7th/vim-vsnip')
 " call vundle#add('hrsh7th/vim-vsnip-integ')
@@ -200,3 +201,4 @@ require('dap_go_nvim')
 require'alpha'.setup(require'alpha.themes.startify'.config)
 require('aerial_custom')
 require("oil").setup()
+require('eyeliner').setup({ highlight_on_key = true, dim = true})
