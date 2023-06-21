@@ -1,6 +1,16 @@
 
-require("mason").setup()
-require("mason-lspconfig").setup()
+require("mason").setup({
+    ui = {
+        icons = {
+            package_installed = "✓",
+            package_pending = "➜",
+            package_uninstalled = "✗"
+        }
+    }
+})
+require("mason-lspconfig").setup({
+  ensure_installed = { "lua_ls", "gopls", "pylsp", "terraformls" },
+})
 
 require'lspconfig'.gopls.setup{
   cmd = {"gopls"},
@@ -17,6 +27,7 @@ require'lspconfig'.gopls.setup{
 }
 require'lspconfig'.terraformls.setup{}
 require'lspconfig'.pylsp.setup{
+  filetypes = { "python" },
   settings = {
     pylsp = {
       plugins = {

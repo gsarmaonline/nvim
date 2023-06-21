@@ -27,7 +27,7 @@ vim.opt.clipboard = "unnamed"
 vim.opt.number = true
 vim.opt.swapfile = false
 
--- Install the required plugins 
+-- Install the required plugins
 vim.cmd([[
 
 " set the runtime path to include Vundle and initialize
@@ -78,6 +78,11 @@ Plugin 'mfussenegger/nvim-dap'
 Plugin 'leoluz/nvim-dap-go'
 Plugin 'rcarriga/nvim-dap-ui'
 Plugin 'mfussenegger/nvim-jdtls'
+Plugin 'catppuccin/nvim', { 'as': 'catppuccin' }
+Plugin 'goolord/alpha-nvim'
+Plugin 'nvim-tree/nvim-web-devicons'
+Plugin 'MunifTanjim/nui.nvim'
+Plugin 'stevearc/aerial.nvim'
 
 " call vundle#add('hrsh7th/vim-vsnip')
 " call vundle#add('hrsh7th/vim-vsnip-integ')
@@ -181,6 +186,8 @@ nnoremap <leader>f :execute 'Telescope live_grep_args default_text=' . expand('<
 
 nmap <leader>pilot :Copilot enable<CR>
 nmap <leader>nopilot :Copilot disable<CR>
+
+colorscheme catppuccin
 ]])
 
 require("mason_nvim")
@@ -189,4 +196,5 @@ require("telescope_nvim")
 require("gitsigns_nvim")
 require("github_linker_nvim")
 require('dap_go_nvim')
-
+require'alpha'.setup(require'alpha.themes.startify'.config)
+require('aerial_custom')
