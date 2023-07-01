@@ -9,4 +9,4 @@ source $ZSH/oh-my-zsh.sh
 
 source ~/.work-aliases.sh
 source ~/.git-aliases.sh
-source ~/.bash-aliases
+source ~/.bash-aliases.sh

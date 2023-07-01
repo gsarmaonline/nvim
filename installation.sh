@@ -1,7 +1,5 @@
 #!/bin/bash
 
-brew install neovim
-pip3 install pynvim
 mkdir -p ~/.config/nvim/bundle/
 cp -Rf nvim.custom/* ~/.config/nvim/
 
@@ -19,7 +17,7 @@ git clone https://github.com/romkatv/powerlevel10k.git $ZSH_CUSTOM/themes/powerl
 sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/install.sh)"
 
 cp ~/.zshrc ~/.zshrc.bak
-mv zshrc ~/.zshrc
+cp zshrc ~/.zshrc
 
 # For git status coloring
 git config --global color.ui true
