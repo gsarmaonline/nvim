@@ -85,6 +85,7 @@ Plugin 'MunifTanjim/nui.nvim'
 Plugin 'stevearc/aerial.nvim'
 Plugin 'stevearc/oil.nvim'
 Plugin 'jinh0/eyeliner.nvim'
+Plugin 'rust-lang-nursery/rustfmt'
 
 " call vundle#add('hrsh7th/vim-vsnip')
 " call vundle#add('hrsh7th/vim-vsnip-integ')
@@ -129,6 +130,7 @@ autocmd BufEnter * let g:copilot#enabled = 1
 
 -- Global config for installed plugins
 vim.g.go_fmt_autosave = 1
+vim.g.rustfmt_autosave = 1
 --vim.g["jedi#completions_enabled"] = 0
 --vim.g["jedi#use_splits_not_buffers"] = "right"
 --vim.g["python3_host_prog"] = '/Users/gsarma/.pyenv/shims/python3'

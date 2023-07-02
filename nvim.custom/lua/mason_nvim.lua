@@ -9,7 +9,7 @@ require("mason").setup({
     }
 })
 require("mason-lspconfig").setup({
-  ensure_installed = { "lua_ls", "gopls", "pylsp", "terraformls" },
+  ensure_installed = { "lua_ls", "gopls", "pylsp", "terraformls", "rust-analyzer" },
 })
 
 require'lspconfig'.gopls.setup{
