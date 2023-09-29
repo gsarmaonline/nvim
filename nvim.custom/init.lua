@@ -82,7 +82,6 @@ Plugin 'catppuccin/nvim', { 'as': 'catppuccin' }
 Plugin 'goolord/alpha-nvim'
 Plugin 'nvim-tree/nvim-web-devicons'
 Plugin 'MunifTanjim/nui.nvim'
-Plugin 'stevearc/aerial.nvim'
 Plugin 'stevearc/oil.nvim'
 Plugin 'jinh0/eyeliner.nvim'
 Plugin 'rust-lang-nursery/rustfmt'
@@ -201,6 +200,5 @@ require("gitsigns_nvim")
 require("github_linker_nvim")
 require('dap_go_nvim')
 require'alpha'.setup(require'alpha.themes.startify'.config)
-require('aerial_custom')
 require("oil").setup()
 require('eyeliner').setup({ highlight_on_key = true, dim = true})
