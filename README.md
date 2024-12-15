@@ -12,6 +12,11 @@ Nvim dev environment
 
 ## Installation
 
+### Ubuntu
+ZSH is not available by default.
+Run `apt install zsh -y`, enter into `zsh`
+and then run `bash installation.sh`
+
 ### Macbook
 The step will install neovim on your macbook, copy the required `init.vim` and install
 the required plugins using `Vundle`.

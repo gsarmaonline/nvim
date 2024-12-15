@@ -6,7 +6,7 @@ set expandtab ts=4 sw=4 ai
 set statusline+=%#warningmsg#
 set statusline+=%*
 
-set rtp+=~/.vim/bundle/Vundle.vim
+set rtp+=~/.config/nvim/bundle/Vundle.vim
 set rtp+=/opt/homebrew/opt/fz
 
 set tags=./tags
