@@ -1,16 +1,22 @@
+-- Bootstrap lazy.nvim
+local lazypath = vim.fn.stdpath("data") .. "/lazy/lazy.nvim"
+if not vim.loop.fs_stat(lazypath) then
+  vim.fn.system({
+    "git",
+    "clone",
+    "--filter=blob:none",
+    "https://github.com/folke/lazy.nvim.git",
+    "--branch=stable", -- latest stable release
+    lazypath,
+  })
+end
+vim.opt.rtp:prepend(lazypath)
 
--- Setting the required configurations
-vim.cmd([[
+-- Set leader key before lazy setup
+vim.g.mapleader = " "
+vim.g.maplocalleader = " "
 
-set expandtab ts=4 sw=4 ai
-set statusline+=%#warningmsg#
-set statusline+=%*
-
-set rtp+=~/.config/nvim/bundle/Vundle.vim
-set rtp+=/opt/homebrew/opt/fz
-
-set tags=./tags
-]])
+-- Neovim settings
 vim.opt.compatible = false
 vim.opt.autoindent = true
 vim.opt.showcmd = true
@@ -26,82 +32,18 @@ vim.opt.mouse = "a"
 vim.opt.clipboard = "unnamed"
 vim.opt.number = true
 vim.opt.swapfile = false
+vim.opt.tags = "./tags"
 
--- Install the required plugins
-vim.cmd([[
-
-" set the runtime path to include Vundle and initialize
-call vundle#begin()
-" " alternatively, pass a path where Vundle should install plugins
-" "call vundle#begin('~/some/path/here')
-"
-" " let Vundle manage Vundle, required
-Plugin 'VundleVim/Vundle.vim'
-Plugin 'scrooloose/nerdtree'
-Plugin 'tpope/vim-fugitive'
-Plugin 'vim-scripts/L9'
-Plugin 'tpope/vim-surround'
-"Plugin 'ctrlpvim/ctrlp.vim'
-Plugin 'joonty/vim-taggatron'
-Plugin 'maksimr/vim-jsbeautify'
-Plugin 'mxw/vim-jsx'
-Plugin 'junegunn/fzf'
-Plugin 'fatih/vim-go', { 'do': ':GoInstallBinaries' }
-Plugin 'jremmen/vim-ripgrep'
-Plugin 'mileszs/ack.vim'
-Plugin 'rust-lang/rust.vim'
-Plugin 'lepture/vim-jinja'
-Plugin 'hashivim/vim-terraform'
-Plugin 'vim-airline/vim-airline'
-"Plugin 'davidhalter/jedi-vim'
-Plugin 'bling/vim-bufferline'
-Plugin 'nvim-lua/plenary.nvim'
-Plugin 'nvim-telescope/telescope.nvim', { 'tag': '0.1.1' }
-Plugin 'nvim-treesitter/nvim-treesitter'
-Plugin 'sharkdp/fd'
-Plugin 'lewis6991/gitsigns.nvim'
-Plugin 'williamboman/mason.nvim', { 'do': ':MasonUpdate' }
-Plugin 'williamboman/mason-lspconfig.nvim'
-Plugin 'neovim/nvim-lspconfig'
-Plugin 'hrsh7th/cmp-nvim-lsp'
-Plugin 'hrsh7th/cmp-buffer'
-Plugin 'hrsh7th/cmp-path'
-Plugin 'hrsh7th/cmp-cmdline'
-Plugin 'hrsh7th/nvim-cmp'
-Plugin 'hrsh7th/vim-vsnip'
-Plugin 'hrsh7th/vim-vsnip-integ'
-Plugin 'nicwest/vim-camelsnek'
-Plugin 'vincent178/nvim-github-linker'
-Plugin 'nvim-telescope/telescope-live-grep-args.nvim'
-Plugin 'github/copilot.vim'
-Plugin 'mfussenegger/nvim-dap'
-Plugin 'leoluz/nvim-dap-go'
-Plugin 'rcarriga/nvim-dap-ui'
-Plugin 'mfussenegger/nvim-jdtls'
-Plugin 'catppuccin/nvim', { 'as': 'catppuccin' }
-Plugin 'goolord/alpha-nvim'
-Plugin 'nvim-tree/nvim-web-devicons'
-Plugin 'MunifTanjim/nui.nvim'
-Plugin 'stevearc/oil.nvim'
-Plugin 'jinh0/eyeliner.nvim'
-Plugin 'rust-lang-nursery/rustfmt'
-
-" call vundle#add('hrsh7th/vim-vsnip')
-" call vundle#add('hrsh7th/vim-vsnip-integ')
-
-call vundle#end()            " required
-" " To ignore plugin indent changes, instead use:
-"
-]])
-
--- Autocmds
+-- Syntax and filetypes
 vim.cmd([[
 syntax on
-
 filetype on
 filetype plugin on
 filetype indent on
+]])
 
+-- Autocmds for file types
+vim.cmd([[
 autocmd FileType * set tabstop=2|set softtabstop=2|set shiftwidth=2|set expandtab|set autoindent
 autocmd BufNewFile,BufRead *.go setlocal ts=4 sw=4 sts=4
 autocmd FileType rs setlocal ts=4 sw=4 sts=4
@@ -115,26 +57,9 @@ autocmd FileType erb set tabstop=2|set softtabstop=2|set shiftwidth=2|set expand
 
 " Golang configuration
 autocmd FileType go setlocal ts=4 sw=4 sts=4
-autocmd FileType go nmap <leader>b  <Plug>(go-build)
-autocmd FileType go nmap <leader>r  <Plug>(go-run)
-autocmd FileType go nmap <leader>t  <Plug>(go-test)
-
-autocmd BufEnter * if bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
-    \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
-"autocmd StdinReadPre * let s:std_in=1
-"autocmd VimEnter * if argc() == 0 && !exists("s:std_in") | NERDTree | endif
-autocmd BufEnter * let g:copilot#enabled = 1
 ]])
 
-
--- Global config for installed plugins
-vim.g.go_fmt_autosave = 1
-vim.g.rustfmt_autosave = 1
---vim.g["jedi#completions_enabled"] = 0
---vim.g["jedi#use_splits_not_buffers"] = "right"
---vim.g["python3_host_prog"] = '/Users/gsarma/.pyenv/shims/python3'
-
--- Key mappings
+-- General keymappings
 vim.cmd([[
 nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 nnoremap ch :%s/\<<C-r><C-w>\>/
@@ -144,10 +69,6 @@ nmap <leader>sn :set number<CR>
 nmap <leader>snn :set nonumber<CR>
 nmap <leader>pst :set paste<CR>
 nmap <leader>npst :set nopaste<CR>
-
-" Toggle NERDTree
-nmap <leader>nn :NERDTreeToggle<CR>
-nmap <leader>nf :NERDTreeFind<CR>
 
 " Remove trailing whitespaces
 nmap <leader>pw :%s/\s\+$//e<CR>
@@ -172,9 +93,128 @@ imap <leader>ss <Esc>:wq<CR>
 
 nnoremap <leader>h :noh<return><esc>
 noremap <leader>a ggVG
+]])
 
-noremap <leader>link :GithubLink<CR>
+-- Plugin specifications
+require("lazy").setup({
+  -- UI and Appearance
+  { "vim-airline/vim-airline" },
+  { "bling/vim-bufferline" },
+  { "catppuccin/nvim", name = "catppuccin", priority = 1000 },
+  { "folke/tokyonight.nvim", priority = 1000 },
+  { "goolord/alpha-nvim", dependencies = { "nvim-tree/nvim-web-devicons" },
+    config = function() require("alpha").setup(require("alpha.themes.startify").config) end },
+  { "nvim-tree/nvim-web-devicons" },
+  { "MunifTanjim/nui.nvim" },
+  { "jinh0/eyeliner.nvim", config = function() require('eyeliner').setup({ highlight_on_key = true, dim = true}) end },
 
+  -- File navigation
+  { "scrooloose/nerdtree", 
+    config = function()
+      vim.cmd([[
+        nmap <leader>nn :NERDTreeToggle<CR>
+        nmap <leader>nf :NERDTreeFind<CR>
+        autocmd BufEnter * if bufname('#') =~ 'NERD_tree_\d\+' && bufname('%') !~ 'NERD_tree_\d\+' && winnr('$') > 1 |
+            \ let buf=bufnr() | buffer# | execute "normal! \<C-W>w" | execute 'buffer'.buf | endif
+      ]])
+    end
+  },
+  { "junegunn/fzf" },
+  { "nvim-lua/plenary.nvim" },
+  { 
+    "nvim-telescope/telescope.nvim", 
+    dependencies = {
+      "nvim-lua/plenary.nvim",
+      "nvim-telescope/telescope-live-grep-args.nvim"
+    },
+    config = function() require("telescope_nvim") end
+  },
+  { "sharkdp/fd" },
+  { "stevearc/oil.nvim", config = function() require("oil").setup() end },
+
+  -- Code editing utilities
+  { "tpope/vim-surround" },
+  { "maksimr/vim-jsbeautify" },
+  { "vim-scripts/L9" },
+  { "joonty/vim-taggatron" },
+  { "jremmen/vim-ripgrep" },
+  { "mileszs/ack.vim" },
+  { "nicwest/vim-camelsnek" },
+  
+  -- Git integration
+  { "tpope/vim-fugitive" },
+  { "lewis6991/gitsigns.nvim", config = function() require("gitsigns_nvim") end },
+  { "vincent178/nvim-github-linker", config = function() require("github_linker_nvim") end },
+
+  -- Syntax and language support
+  { "nvim-treesitter/nvim-treesitter", build = ":TSUpdate" },
+  { "mxw/vim-jsx" },
+  { "rust-lang/rust.vim", 
+    config = function() vim.g.rustfmt_autosave = 1 end 
+  },
+  { "rust-lang-nursery/rustfmt" },
+  { "lepture/vim-jinja" },
+  { "hashivim/vim-terraform" },
+  { "fatih/vim-go", build = ":GoInstallBinaries",
+    config = function() 
+      vim.g.go_fmt_autosave = 1
+      vim.cmd([[
+        autocmd FileType go nmap <leader>b  <Plug>(go-build)
+        autocmd FileType go nmap <leader>r  <Plug>(go-run)
+        autocmd FileType go nmap <leader>t  <Plug>(go-test)
+      ]])
+    end
+  },
+
+  -- LSP and completion
+  { "williamboman/mason.nvim", build = ":MasonUpdate" },
+  { "williamboman/mason-lspconfig.nvim" },
+  { "neovim/nvim-lspconfig" },
+  { "hrsh7th/cmp-nvim-lsp" },
+  { "hrsh7th/cmp-buffer" },
+  { "hrsh7th/cmp-path" },
+  { "hrsh7th/cmp-cmdline" },
+  { "hrsh7th/nvim-cmp" },
+  { "hrsh7th/vim-vsnip" },
+  { "hrsh7th/vim-vsnip-integ" },
+  {
+    "mason.nvim", 
+    "mason-lspconfig.nvim", 
+    "nvim-lspconfig",
+    "cmp-nvim-lsp",
+    "nvim-cmp",
+    config = function() require("mason_nvim") require("nvim_cmp_nvim") end
+  },
+
+  -- Debugging
+  { "mfussenegger/nvim-dap" },
+  { "leoluz/nvim-dap-go" },
+  { "rcarriga/nvim-dap-ui" },
+  { "mfussenegger/nvim-jdtls" },
+  {
+    "nvim-dap",
+    "nvim-dap-go",
+    "nvim-dap-ui",
+    config = function() require("dap_go_nvim") end
+  },
+
+  -- AI assistance
+  { "github/copilot.vim",
+    config = function() 
+      vim.cmd([[
+        autocmd BufEnter * let g:copilot#enabled = 1
+        nmap <leader>pilot :Copilot enable<CR>
+        nmap <leader>nopilot :Copilot disable<CR>
+      ]])
+    end
+  },
+})
+
+-- Set colorscheme after lazy setup
+vim.cmd([[colorscheme tokyonight]])
+
+-- Telescope keymappings
+vim.cmd([[
 " Find files using Telescope command-line sugar.
 nnoremap <leader>ff <cmd>Telescope find_files<cr>
 nnoremap <leader>fg <cmd>Telescope live_grep<cr>
@@ -186,19 +226,9 @@ imap <C-p> :Telescope find_files<CR>
 nmap <C-f> :Telescope live_grep_args<CR>
 imap <C-f> :Telescope live_grep_args<CR>
 nnoremap <leader>f :execute 'Telescope live_grep_args default_text=' . expand('<cword>')<cr>
-
-nmap <leader>pilot :Copilot enable<CR>
-nmap <leader>nopilot :Copilot disable<CR>
-
-colorscheme catppuccin
 ]])
 
-require("mason_nvim")
-require("nvim_cmp_nvim")
-require("telescope_nvim")
-require("gitsigns_nvim")
-require("github_linker_nvim")
-require('dap_go_nvim')
-require'alpha'.setup(require'alpha.themes.startify'.config)
-require("oil").setup()
-require('eyeliner').setup({ highlight_on_key = true, dim = true})
+-- GitHub Linker keymapping
+vim.cmd([[
+noremap <leader>link :GithubLink<CR>
+]])
