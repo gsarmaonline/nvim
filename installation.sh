@@ -19,5 +19,7 @@ sh -c "$(curl -fsSL https://raw.github.com/robbyrussell/oh-my-zsh/master/tools/i
 cp ~/.zshrc ~/.zshrc.bak
 cp zshrc ~/.zshrc
 
+cp tmux.conf ~/.tmux.conf
+
 # For git status coloring
 git config --global color.ui true
