@@ -29,6 +29,15 @@ This file contains important context and requirements for this project.
 - Include environment variable changes in PR descriptions
 - Ensure `.env` is always in `.gitignore`
 
+### CI/CD Automation
+
+- Use the `/actionify` skill to generate/update GitHub Actions workflows when project structure changes
+- Before creating PRs that add new services or change test setup, run `/actionify` to update workflows
+- Ensure all tests pass in CI before merging PRs
+- Workflows should run on push to main and on all pull requests
+- Build artifacts should only be generated after all tests pass successfully
+- Configure required secrets in GitHub repository settings for deployments
+
 ## Commands and Tools
 
 ### Frontend Screenshot Commands (Auto-approved)
