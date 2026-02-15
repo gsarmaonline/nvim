@@ -20,6 +20,15 @@ This file contains important context and requirements for this project.
 - Include API changes summary in PR descriptions (new/modified/removed endpoints, type changes)
 - Generate OpenAPI/Swagger specs, Markdown docs, and Postman collections
 
+### Environment Variable Management
+
+- Use the `/envify` skill to scan and generate/update `.env.example` whenever new environment variables are added
+- Before creating PRs that introduce new env vars, run `/envify` to update documentation
+- Never commit actual secrets or `.env` files to version control
+- Always add helpful comments in `.env.example` explaining how to obtain values
+- Include environment variable changes in PR descriptions
+- Ensure `.env` is always in `.gitignore`
+
 ## Commands and Tools
 
 ### Frontend Screenshot Commands (Auto-approved)
@@ -31,6 +40,11 @@ This file contains important context and requirements for this project.
 - `npm run api-docs` - Generate/update API documentation from route definitions
 - `npm run api-docs:serve` - Start local documentation server
 - These commands should be run automatically when API routes or types are modified before creating PRs
+
+### Environment Variable Commands (Auto-approved)
+- `npm run env:check` or `python scripts/check_env.py` - Validate all required environment variables are set
+- `npm run env:example` - Regenerate .env.example from current codebase
+- These commands should be run after adding new environment variables
 
 ## Notes
 
