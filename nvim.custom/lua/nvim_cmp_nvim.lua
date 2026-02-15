@@ -64,9 +64,6 @@ local cmp = require'cmp'
   require('lspconfig')['gopls'].setup {
     capabilities = capabilities
   }
-  require('lspconfig')['python-lsp-server'].setup {
-    capabilities = capabilities
-  }
   require('lspconfig')['pylsp'].setup {
     capabilities = capabilities
   }
