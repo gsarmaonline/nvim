@@ -9,7 +9,7 @@ require("mason").setup({
     }
 })
 require("mason-lspconfig").setup({
-  ensure_installed = { "lua_ls", "gopls", "pylsp", "terraformls", "rust_analyzer" },
+  ensure_installed = { "lua_ls", "gopls", "pylsp", "terraformls", "rust_analyzer", "ruby_lsp" },
 })
 
 require'lspconfig'.gopls.setup{
@@ -39,6 +39,18 @@ require'lspconfig'.pylsp.setup{
     }
   }
 }
+
+
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = 'ruby',
+  callback = function()
+    vim.lsp.start({
+      name = 'ruby-lsp',
+      cmd = { 'ruby-lsp' },
+    })
+  end,
+})
+
 
 vim.api.nvim_create_autocmd('FileType', {
   pattern = 'sh',
