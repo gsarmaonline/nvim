@@ -12,9 +12,15 @@ You are being invoked via the /ship skill. Your task is to:
    - Accurately describes what was changed and why
    - Follows the repository's commit message conventions
    - Includes: Co-Authored-By: Claude Sonnet 4.5 <noreply@anthropic.com>
-5. Stage relevant files and commit the changes using a HEREDOC for the commit message
-6. Push the changes to the remote repository
-7. **Branch-specific behavior**:
+5. **Update README if feasible**: Before staging, check if a README exists (README.md, README.rst, etc.) and if the changes warrant documentation updates:
+   - New features, commands, skills, or tools added → update relevant sections or add new ones
+   - Removed or renamed features → remove/update outdated references
+   - Changed configuration, setup steps, or usage instructions → reflect those changes
+   - Pure internal refactors, bug fixes, or test changes → skip README update
+   - If updating, keep changes minimal and accurate — only document what actually changed
+6. Stage relevant files (including updated README if modified) and commit the changes using a HEREDOC for the commit message
+7. Push the changes to the remote repository
+8. **Branch-specific behavior**:
    - **If on `main` or `master` branch**: Stop here, inform the user that changes were pushed directly to the main branch
    - **If on any other branch**: Create a pull request using gh pr create with:
      - A clear, concise title (under 70 characters)
