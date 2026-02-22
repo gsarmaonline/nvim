@@ -10,6 +10,11 @@ Nvim dev environment
 - Download zsh-completions
 - Download oh my zsh
 
+## Work Aliases
+Custom shell aliases defined in `aliases/work-aliases.sh`:
+- `cct` - Run Claude Code in worktree mode (`claude --worktree`)
+- `afk` - Prevent Mac from sleeping (`caffeinate -d`)
+
 ## Installation
 
 ### Ubuntu
