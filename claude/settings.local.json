@@ -58,7 +58,18 @@
       "Bash(diff *)",
       "Bash(tar *)",
       "Bash(unzip *)",
-      "Bash(brew *)"
+      "Bash(brew *)",
+      "Bash(npm audit*)",
+      "Bash(pip-audit *)",
+      "Bash(pip audit *)",
+      "Bash(safety check*)",
+      "Bash(cargo audit*)",
+      "Bash(govulncheck *)",
+      "Bash(bundle audit*)",
+      "Bash(semgrep *)",
+      "Bash(bandit *)",
+      "Bash(gosec *)",
+      "Bash(trufflehog *)"
     ]
   }
 }

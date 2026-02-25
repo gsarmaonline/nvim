@@ -29,6 +29,14 @@ This file contains important context and requirements for this project.
 - Include environment variable changes in PR descriptions
 - Ensure `.env` is always in `.gitignore`
 
+### Security Auditing
+
+- Use the `/securify` skill to scan for vulnerabilities before major releases, after adding new dependencies, or when adding new API endpoints
+- Run `/securify` when a PR introduces new routes to verify authentication, authorization, and rate limiting are in place
+- Never commit `.env` files or hardcoded secrets — always use environment variables
+- Review `docs/SECURITY_AUDIT.md` for outstanding security issues after each audit
+- Rotate any secrets immediately if exposed in git history
+
 ### CI/CD Automation
 
 - Use the `/actionify` skill to generate/update GitHub Actions workflows when project structure changes
@@ -49,6 +57,18 @@ This file contains important context and requirements for this project.
 - `npm run api-docs` - Generate/update API documentation from route definitions
 - `npm run api-docs:serve` - Start local documentation server
 - These commands should be run automatically when API routes or types are modified before creating PRs
+
+### Security Audit Commands (Auto-approved)
+- `npm audit` - Scan Node.js dependencies for CVEs
+- `pip-audit` / `safety check` - Scan Python dependencies for CVEs
+- `cargo audit` - Scan Rust dependencies for CVEs
+- `govulncheck ./...` - Scan Go dependencies for CVEs
+- `bundle audit check` - Scan Ruby dependencies for CVEs
+- `semgrep` - Static analysis for security anti-patterns
+- `bandit` - Python-specific security linter
+- `gosec` - Go-specific security linter
+- `trufflehog` - Secret detection in git history
+- These commands are run automatically by `/securify` during security audits
 
 ### Environment Variable Commands (Auto-approved)
 - `npm run env:check` or `python scripts/check_env.py` - Validate all required environment variables are set
