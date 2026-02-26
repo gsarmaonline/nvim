@@ -26,6 +26,20 @@ Custom shell aliases defined in `aliases/work-aliases.sh`:
 - `cct` - Run Claude Code in worktree mode (`claude --worktree`)
 - `afk` - Prevent Mac from sleeping (`caffeinate -d`)
 
+## Claude Skills
+
+Custom skills in `claude/skills/` (symlinked to `~/.claude/skills`):
+
+- `/blogify` - Generate a structured technical blog post from a repo, task, or document
+- `/securify` - Scan a repository for security vulnerabilities
+- `/actionify` - Generate GitHub Actions CI/CD workflows
+- `/apify` - Generate API documentation from route definitions
+- `/screenshotify` - Capture screenshots of frontend pages
+- `/envify` - Generate `.env.example` from codebase secrets
+- `/ship` - Commit, push, and optionally open a PR
+- `/add-to-claude` - Add context or requirements to CLAUDE.md
+- `/dockerise` - Generate Dockerfile(s) for a project
+
 ## Installation
 
 ### Ubuntu
