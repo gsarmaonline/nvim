@@ -6,6 +6,17 @@ Nvim dev environment
 - Setup the lspconfig in `mason_vim.lua`
 - Add autocomplete capabilities in `nvim_cmp_nvim.lua`
 
+## Tmux configuration
+Managed via [TPM](https://github.com/tmux-plugins/tpm) (`~/.tmux/plugins/tpm`).
+
+Plugins:
+- `tmux-resurrect` - Persist sessions across restarts (`prefix + Ctrl-s` to save, `prefix + Ctrl-r` to restore)
+- `tmux-continuum` - Auto-save sessions every 15 minutes and auto-restore on server start
+
+TPM keybinds:
+- `prefix + I` - Install plugins
+- `prefix + U` - Update plugins
+
 ## ZSH configurations
 - Download zsh-completions
 - Download oh my zsh
