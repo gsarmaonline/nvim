@@ -210,6 +210,48 @@ When creating PRs (in the `/ship` skill), automatically:
 No visual changes detected on: About, Contact
 ```
 
+### 10a. Attach Screenshots to an Existing Open PR
+
+If there is already an open PR for the current branch and UI-related files were changed, attach the screenshots directly to that PR:
+
+1. **Detect open PR** for the current branch:
+   ```bash
+   gh pr view --json number,url,body 2>/dev/null
+   ```
+   If no open PR exists, skip this step.
+
+2. **Check if UI changes are present** by inspecting the diff for the PR:
+   ```bash
+   gh pr diff --name-only
+   ```
+   Look for changes in files matching patterns like:
+   - `*.css`, `*.scss`, `*.sass`, `*.less`
+   - `*.tsx`, `*.jsx`, `*.vue`, `*.svelte`
+   - Files inside `components/`, `pages/`, `app/`, `views/`, `layouts/`, `styles/`, `public/`
+
+3. **If UI changes are detected**, build a `## 📸 Visual Changes` section with the captured screenshots and append it to the existing PR body:
+   ```bash
+   CURRENT_BODY=$(gh pr view --json body -q '.body')
+   NEW_SECTION="$(cat <<'MARKDOWN'
+   ## 📸 Visual Changes
+
+   | Page | Desktop | Tablet | Mobile |
+   |------|---------|--------|--------|
+   | Home | ![home-desktop](screenshots/home-desktop.png) | ![home-tablet](screenshots/home-tablet.png) | ![home-mobile](screenshots/home-mobile.png) |
+   | ... | ... | ... | ... |
+   MARKDOWN
+   )"
+
+   gh pr edit --body "$(printf '%s\n\n%s' "$CURRENT_BODY" "$NEW_SECTION")"
+   ```
+
+4. **Notify the user** after updating the PR:
+   ```
+   📎 Screenshots attached to PR #<number>: <url>
+   ```
+
+   If the `## 📸 Visual Changes` section already exists in the PR body, replace it rather than appending a duplicate.
+
 ### 11. Report Summary
 
 After completion, show:
