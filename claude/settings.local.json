@@ -6,7 +6,8 @@
     "network": {
       "allowedDomains": ["*.github.com", "*.npmjs.org", "registry.yarnpkg.com"],
       "allowUnixSockets": [
-        "/var/run/docker.sock"
+        "/var/run/docker.sock",
+        "/Users/gsarma/.docker/run/docker.sock"
       ],
       "allowLocalBinding": true
     }
