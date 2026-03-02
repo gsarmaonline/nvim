@@ -57,11 +57,24 @@ Generate the blog post using the structure below. Follow the writing guidelines 
 
 ### Blog Post Structure
 
+Every blog post MUST begin with this exact frontmatter block before any other content:
+
 ```markdown
-# <Title: Direct, descriptive, action-oriented>
+---
+title: <Title: Direct, descriptive, action-oriented>
+description: >-
+  <One-sentence description of what was built and what it does>
+date: "<ISO 8601 timestamp, e.g. 2026-02-26T14:33:35.671331>"
+categories: []
+keywords: []
+slug: >-
+  <kebab-case-slug-matching-the-filename>
+---
+```
 
-*<Date: YYYY-MM-DD>*
+Then the post body follows (no `# Title` or `*Date*` line — those are in the frontmatter):
 
+```markdown
 <Hook paragraph — 2-4 sentences. Start with a real problem, scenario, or question.
 Do NOT start with "In this post...". Make the reader feel the pain before offering the solution.>
 
