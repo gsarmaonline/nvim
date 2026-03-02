@@ -2,12 +2,13 @@
   "sandbox": {
     "enabled": true,
     "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["docker"],
+    "excludedCommands": ["docker", "limactl", "kubectl"],
     "network": {
       "allowedDomains": ["*.github.com", "*.npmjs.org", "registry.yarnpkg.com"],
       "allowUnixSockets": [
         "/var/run/docker.sock",
-        "/Users/gsarma/.docker/run/docker.sock"
+        "/Users/gsarma/.docker/run/docker.sock",
+        "/Users/gsarma/.lima/**"
       ],
       "allowLocalBinding": true
     }
@@ -50,6 +51,8 @@
       "Bash(javac *)",
       "Bash(docker *)",
       "Bash(docker-compose *)",
+      "Bash(kubectl *)",
+      "Bash(limactl *)",
       "Bash(ls *)",
       "Bash(find:*)",
       "Bash(cat *)",
