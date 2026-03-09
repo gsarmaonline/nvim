@@ -52,6 +52,7 @@ Generate the blog post using the structure below. Follow the writing guidelines 
 - **Concrete over abstract**: Use real code snippets, commands, and examples wherever possible.
 - **Honest about trade-offs**: Acknowledge what the approach doesn't do well.
 - **No filler**: Avoid "In this blog post we will..." intros. Get to the point.
+- **No em dashes**: Do not use em dashes (—) anywhere in the post. Use commas, colons, or restructure the sentence instead.
 
 ---
 
@@ -195,6 +196,106 @@ Before writing the file, verify:
 
 ---
 
+## Step 5b — Generate Cover Image
+
+After writing the post, create a cover image that visually represents the topic and embed it at the top of the post.
+
+### Check if Remotion is available
+
+```bash
+cat package.json | grep remotion
+```
+
+**If Remotion is available**, create a title-card still image:
+
+1. Write a temporary composition file `src/remotion/compositions/CoverImage.tsx` with this structure:
+
+```tsx
+import React from 'react';
+import { AbsoluteFill } from 'remotion';
+
+// Design tokens — match the blog's dark theme
+const BG = '#0d1117';
+const TEXT = '#e6edf3';
+const MUTED = '#8b949e';
+const ACCENT = '<choose a color that fits the topic>';
+const FONT = 'system-ui, -apple-system, BlinkMacSystemFont, sans-serif';
+
+export const CoverImage: React.FC = () => (
+  <AbsoluteFill style={{ backgroundColor: BG, fontFamily: FONT, padding: '80px 100px', flexDirection: 'column', justifyContent: 'center' }}>
+
+    {/* Category label */}
+    <div style={{ color: MUTED, fontSize: 22, letterSpacing: '0.14em', textTransform: 'uppercase', marginBottom: 24 }}>
+      <topic category, e.g. "Storage Internals Series">
+    </div>
+
+    {/* Title */}
+    <div style={{ color: TEXT, fontSize: 72, fontWeight: 700, letterSpacing: '-0.02em', lineHeight: 1.15, marginBottom: 32 }}>
+      <blog title>
+    </div>
+
+    {/* Visual element — pick one that fits the topic: */}
+    {/* Option A: key terms/concepts as styled pills */}
+    <div style={{ display: 'flex', gap: 16, flexWrap: 'wrap' }}>
+      {['<concept 1>', '<concept 2>', '<concept 3>'].map((term, i) => (
+        <div key={i} style={{ background: `${ACCENT}18`, border: `1px solid ${ACCENT}44`, borderRadius: 6, padding: '8px 18px', color: ACCENT, fontSize: 20, fontWeight: 500 }}>
+          {term}
+        </div>
+      ))}
+    </div>
+
+    {/* Option B: a simple ASCII/box diagram inline if the topic has a clear structure */}
+    {/* Option C: a comparison table with two columns */}
+
+    {/* Bottom: site attribution */}
+    <div style={{ position: 'absolute', bottom: 60, right: 100, color: MUTED, fontSize: 20, letterSpacing: '0.06em' }}>
+      gauravsarma.com
+    </div>
+  </AbsoluteFill>
+);
+```
+
+Design rules for the cover image:
+- Use the same dark background `#0d1117` as the blog
+- Choose an accent color that fits the topic (e.g. `#4fc3f7` for SQLite/databases, `#00ed64` for MongoDB, `#f0883e` for systems/infra)
+- The visual element should be content-specific: key concepts as pills, a mini diagram, a comparison, or a formula — not just decorative shapes
+- Font sizes: category label 22px, title 60–80px (adjust to fit in ~3 lines), pills/diagram text 18–22px
+- Canvas: **1280×672** (standard OG image ratio, 1.9:1)
+
+2. Register it in `src/remotion/Root.tsx`:
+
+```tsx
+<Composition
+  id="CoverImage"
+  component={CoverImage}
+  durationInFrames={1}
+  fps={30}
+  width={1280}
+  height={672}
+  defaultProps={{}}
+/>
+```
+
+3. Render the still (use `dangerouslyDisableSandbox: true` — Chrome download requires network access):
+
+```bash
+npx remotion still src/remotion/index.ts CoverImage public/images/<slug>-cover.png --frame=0
+```
+
+4. Read the output PNG with the Read tool and verify it looks correct before embedding.
+
+5. Add the image to the blog post right after the frontmatter, before the opening hook paragraph:
+
+```markdown
+![<Blog title>](<slug>-cover.png)
+```
+
+6. Clean up: remove `CoverImage` from `Root.tsx` and delete `CoverImage.tsx` — it was a one-off render.
+
+**If Remotion is NOT available**, skip the cover image and note it in the summary.
+
+---
+
 ## Step 6 — Write and Confirm
 
 1. Write the blog post to the determined output path using the Write tool
@@ -206,6 +307,7 @@ Blog post generated
 
 Title:  <title>
 File:   <path/to/file.md>
+Cover:  public/images/<slug>-cover.png  (or "skipped — Remotion not available")
 Sections:
   ✓ Introduction
   ✓ The Problem

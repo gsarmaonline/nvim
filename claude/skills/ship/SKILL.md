@@ -36,5 +36,6 @@ IMPORTANT:
 - If there are no changes to commit, inform the user
 - Do NOT use --no-verify or skip hooks unless explicitly requested
 - Follow git safety protocols: never force push to main/master
+- Do NOT use em dashes (—) in commit messages or PR descriptions. Use commas, colons, or restructure the sentence instead.
 
 Execute all steps in sequence to ship the changes.
