@@ -48,35 +48,86 @@ ls Dockerfile docker-compose.yml .dockerignore
 ls app.json metro.config.js pubspec.yaml
 ```
 
-### 2. Identify Testing Frameworks
+### 2. Discover Actual Tests
 
-Detect testing frameworks for each service:
-
-**Node.js/TypeScript:**
-- Jest (`jest` in package.json)
-- Vitest (`vitest` in package.json)
-- Mocha (`mocha` in package.json)
-- Playwright (`@playwright/test` in package.json)
-- Cypress (`cypress` in package.json)
-
-**Python:**
-- pytest (`pytest` in requirements.txt)
-- unittest (built-in)
-- nose2 (`nose2` in requirements.txt)
+Do not assume tests exist — find them. Run each check that is relevant to the detected languages.
 
 **Go:**
-- Built-in testing (`*_test.go` files)
+```bash
+# Find all test files
+find . -name '*_test.go' -not -path './vendor/*' | head -20
+
+# Check if Makefile has a test target
+grep -n '^test' Makefile 2>/dev/null
+
+# Check go.mod for the module path and Go version
+cat go.mod
+```
+
+Record:
+- Test command: `go test ./... -race -count=1` (standard), or the Makefile target if one exists (e.g. `make test`)
+- Whether any test file imports `database/sql` or `sqlc` (signals DB is needed in CI)
+- Whether docker-compose has postgres/redis services (must be wired as CI services)
+
+**Node.js / TypeScript:**
+```bash
+# Read the test script from package.json
+cat package.json | grep -A2 '"test"'
+
+# Find test files
+find . -name '*.test.ts' -o -name '*.test.js' -o -name '*.spec.ts' -o -name '*.spec.js' | grep -v node_modules | head -20
+
+# Check for test framework config files
+ls jest.config.* vitest.config.* playwright.config.* cypress.config.* 2>/dev/null
+```
+
+Record:
+- Exact test script name from package.json (e.g. `npm test`, `npm run test`, `npm run test:unit`)
+- Whether Playwright/Cypress is present (needs separate E2E job)
+- Whether tests need a running server or DB
+
+**Python:**
+```bash
+# Find test files
+find . -name 'test_*.py' -o -name '*_test.py' | grep -v __pycache__ | head -20
+
+# Check for pytest config
+cat pytest.ini pyproject.toml setup.cfg 2>/dev/null | grep -A5 '\[tool.pytest\|pytest\]'
+
+# Check dependencies for test framework
+grep -i 'pytest\|unittest\|nose' requirements*.txt 2>/dev/null
+```
+
+Record:
+- Test command: `pytest` (with any flags from config), or `python -m pytest`
+- Whether tests need a DB (grep imports in test files for `psycopg2`, `sqlalchemy`, `django.db`)
 
 **Rust:**
-- Built-in testing (`#[test]` in .rs files)
+```bash
+# Check for tests in source files
+grep -rn '#\[test\]' src/ | head -10
+
+# Check for integration tests directory
+ls tests/ 2>/dev/null
+```
+
+Record: `cargo test` is always the command.
 
 **Ruby:**
-- RSpec (`rspec` in Gemfile)
-- Minitest (built-in)
+```bash
+grep -E 'rspec|minitest' Gemfile 2>/dev/null
+ls spec/ test/ 2>/dev/null
+```
 
-**Java:**
-- JUnit (`junit` in pom.xml or build.gradle)
-- TestNG (`testng` in dependencies)
+**Makefile shortcut (any language):**
+```bash
+# If a Makefile exists, prefer its test target — it already knows the right command
+grep -n '^test\b\|^\.PHONY.*test' Makefile 2>/dev/null
+```
+
+If `make test` exists, use it as the CI test command. It avoids duplicating logic.
+
+**If no tests are found:** Note it in the summary and generate a CI workflow with a placeholder test step and a comment explaining where to add tests. Do not skip the workflow entirely.
 
 ### 3. Detect Build Tools
 
@@ -105,242 +156,44 @@ mkdir -p .github/workflows
 
 ### 5. Generate CI Workflow
 
-Create `.github/workflows/ci.yml` with comprehensive testing:
+Create `.github/workflows/ci.yml` using only the languages, test commands, and services **actually detected** in Step 2. Do not generate jobs for languages or frameworks not present in the repo.
 
-**Example for Full-Stack Node.js App:**
+**Rules for generating the workflow:**
+
+- Use the exact test command discovered (e.g. `make test`, `go test ./... -race`, `npm test`, `pytest`)
+- Only add a `services:` block for postgres/redis if the tests actually need a DB (detected in Step 2)
+- Only add a lint job if a linter is configured (e.g. `golangci-lint`, `ruff`, `eslint` in package.json)
+- Only add an E2E job if Playwright or Cypress is detected
+- Always gate the `build` job on `needs: [test]` so builds never run when tests fail
+- Use `actions/upload-artifact@v4`, `actions/checkout@v4`, `actions/setup-go@v5`, `actions/setup-node@v4`, `actions/setup-python@v5` (latest versions)
+
+**Go project with Postgres:**
 
 ```yaml
 name: CI
 
 on:
   push:
-    branches: [main, develop]
+    branches: [main]
   pull_request:
-    branches: [main, develop]
-
-env:
-  NODE_VERSION: '20.x'
-
-jobs:
-  # Lint and format check
-  lint:
-    name: Lint
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run ESLint
-        run: npm run lint
-
-      - name: Check formatting
-        run: npm run format:check
-        continue-on-error: true
-
-  # Backend tests
-  test-backend:
-    name: Test Backend
-    runs-on: ubuntu-latest
-
-    services:
-      postgres:
-        image: postgres:15
-        env:
-          POSTGRES_PASSWORD: postgres
-          POSTGRES_DB: test_db
-        options: >-
-          --health-cmd pg_isready
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 5432:5432
-
-      redis:
-        image: redis:7
-        options: >-
-          --health-cmd "redis-cli ping"
-          --health-interval 10s
-          --health-timeout 5s
-          --health-retries 5
-        ports:
-          - 6379:6379
-
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run database migrations
-        run: npm run migrate:test
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
-
-      - name: Run backend tests
-        run: npm run test:backend
-        env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
-          REDIS_URL: redis://localhost:6379
-          NODE_ENV: test
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage/backend/lcov.info
-          flags: backend
-
-  # Frontend tests
-  test-frontend:
-    name: Test Frontend
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run frontend tests
-        run: npm run test:frontend
-
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          files: ./coverage/frontend/lcov.info
-          flags: frontend
-
-  # E2E tests
-  test-e2e:
-    name: E2E Tests
-    runs-on: ubuntu-latest
-    needs: [test-backend, test-frontend]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Install Playwright
-        run: npx playwright install --with-deps
-
-      - name: Run E2E tests
-        run: npm run test:e2e
-
-      - name: Upload test results
-        if: always()
-        uses: actions/upload-artifact@v3
-        with:
-          name: playwright-report
-          path: playwright-report/
-          retention-days: 30
-
-  # Build
-  build:
-    name: Build
-    runs-on: ubuntu-latest
-    needs: [lint, test-backend, test-frontend]
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build frontend
-        run: npm run build:frontend
-        env:
-          NODE_ENV: production
-
-      - name: Build backend
-        run: npm run build:backend
-        env:
-          NODE_ENV: production
-
-      - name: Upload build artifacts
-        uses: actions/upload-artifact@v3
-        with:
-          name: build-artifacts
-          path: |
-            dist/
-            .next/
-            build/
-          retention-days: 7
-
-  # Type checking (TypeScript)
-  typecheck:
-    name: Type Check
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: ${{ env.NODE_VERSION }}
-          cache: 'npm'
-
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Run type check
-        run: npm run typecheck
-```
-
-### 6. Create Language-Specific Workflows
-
-**Python Backend (`.github/workflows/python-ci.yml`):**
-
-```yaml
-name: Python CI
-
-on: [push, pull_request]
+    branches: [main]
 
 jobs:
   test:
+    name: Test
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        python-version: ['3.10', '3.11', '3.12']
 
+    # Only include this services block if tests need Postgres (detected in Step 2)
     services:
       postgres:
-        image: postgres:15
+        image: postgres:16-alpine
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
         options: >-
           --health-cmd pg_isready
-          --health-interval 10s
+          --health-interval 5s
           --health-timeout 5s
           --health-retries 5
         ports:
@@ -349,124 +202,261 @@ jobs:
     steps:
       - uses: actions/checkout@v4
 
-      - name: Set up Python ${{ matrix.python-version }}
-        uses: actions/setup-python@v4
+      - name: Set up Go
+        uses: actions/setup-go@v5
         with:
-          python-version: ${{ matrix.python-version }}
-          cache: 'pip'
+          go-version-file: go.mod   # reads version from go.mod, no hardcoding
+          cache: true
 
-      - name: Install dependencies
-        run: |
-          python -m pip install --upgrade pip
-          pip install -r requirements.txt
-          pip install -r requirements-dev.txt
+      - name: Download modules
+        run: go mod download
 
-      - name: Run linting
-        run: |
-          pip install ruff
-          ruff check .
+      # Only include if golangci-lint is configured (.golangci.yml exists or detected)
+      - name: Lint
+        uses: golangci/golangci-lint-action@v6
+        with:
+          version: latest
 
-      - name: Run type checking
-        run: |
-          pip install mypy
-          mypy .
-
+      # Use the exact command found in Step 2 (make test OR go test ./... -race)
       - name: Run tests
-        run: pytest --cov=. --cov-report=xml
+        run: go test ./... -v -race -coverprofile=coverage.out
         env:
-          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/test_db
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testdb?sslmode=disable
 
       - name: Upload coverage
-        uses: codecov/codecov-action@v3
+        uses: actions/upload-artifact@v4
         with:
-          file: ./coverage.xml
-          flags: backend
+          name: coverage
+          path: coverage.out
+          retention-days: 7
 
   build:
-    needs: test
+    name: Build
     runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Go
+        uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+
+      - name: Build
+        run: go build -o bin/app ./cmd/server   # adjust entrypoint to match detected cmd path
+```
+
+**Node.js / Next.js project:**
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc   # use .nvmrc if present, else hardcode detected version
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      # Only include if eslint/prettier script exists in package.json
+      - name: Lint
+        run: npm run lint
+
+      # Use the exact script name from package.json (npm test, npm run test, etc.)
+      - name: Run tests
+        run: npm test
+
+  # Only include this job if Playwright is detected
+  e2e:
+    name: E2E
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Install Playwright browsers
+        run: npx playwright install --with-deps chromium
+
+      - name: Run E2E tests
+        run: npx playwright test
+
+      - name: Upload Playwright report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-report
+          path: playwright-report/
+          retention-days: 14
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build
+        run: npm run build
+```
+
+**Python project:**
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test:
+    name: Test
+    runs-on: ubuntu-latest
+
+    # Only include if tests need Postgres
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+          POSTGRES_DB: testdb
+        options: >-
+          --health-cmd pg_isready
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 5
+        ports:
+          - 5432:5432
+
     steps:
       - uses: actions/checkout@v4
 
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.11'
-
-      - name: Build package
-        run: |
-          pip install build
-          python -m build
-
-      - name: Upload package
-        uses: actions/upload-artifact@v3
-        with:
-          name: python-package
-          path: dist/
-```
-
-**Go Backend (`.github/workflows/go-ci.yml`):**
-
-```yaml
-name: Go CI
-
-on: [push, pull_request]
-
-jobs:
-  test:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
-        with:
-          go-version: '1.21'
-          cache: true
+          python-version-file: .python-version   # use file if present, else hardcode detected version
+          cache: pip
 
       - name: Install dependencies
-        run: go mod download
+        run: pip install -r requirements.txt
 
-      - name: Run linting
-        uses: golangci/golangci-lint-action@v3
-        with:
-          version: latest
+      # Only include if ruff/flake8/pylint is in requirements or pyproject.toml
+      - name: Lint
+        run: ruff check .
 
+      # Use the exact command found in Step 2
       - name: Run tests
-        run: go test -v -race -coverprofile=coverage.out ./...
+        run: pytest -v --tb=short
+        env:
+          DATABASE_URL: postgres://postgres:postgres@localhost:5432/testdb
+```
 
-      - name: Upload coverage
-        uses: codecov/codecov-action@v3
-        with:
-          file: ./coverage.out
-          flags: backend
+**Monorepo (Go backend + Next.js frontend in same repo):**
 
-  build:
-    needs: test
+Generate separate jobs per service, each running only in relevant paths:
+
+```yaml
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  test-backend:
+    name: Test Backend
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        goos: [linux, darwin, windows]
-        goarch: [amd64, arm64]
+    # Only run when backend files change
+    # (omit the 'paths' filter if you want it to always run)
     steps:
       - uses: actions/checkout@v4
-
-      - name: Set up Go
-        uses: actions/setup-go@v4
+      - uses: actions/setup-go@v5
         with:
-          go-version: '1.21'
+          go-version-file: go.mod
+          cache: true
+      - run: go mod download
+      - name: Run tests
+        run: go test ./... -race   # or: make test
 
-      - name: Build
-        run: |
-          GOOS=${{ matrix.goos }} GOARCH=${{ matrix.goarch }} \
-          go build -o bin/app-${{ matrix.goos }}-${{ matrix.goarch }} .
-
-      - name: Upload binary
-        uses: actions/upload-artifact@v3
+  test-frontend:
+    name: Test Frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend   # adjust to detected frontend dir
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
         with:
-          name: binaries
-          path: bin/
+          node-version-file: frontend/.nvmrc
+          cache: npm
+          cache-dependency-path: frontend/package-lock.json
+      - run: npm ci
+      - name: Run tests
+        run: npm test   # exact script from package.json
+
+  build:
+    name: Build
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-go@v5
+        with:
+          go-version-file: go.mod
+          cache: true
+      - run: go build -o bin/app ./cmd/server
 ```
+
+### 6. Adapt the Workflow to Findings
+
+After generating the base workflow from the template above, **customize it** based on Step 2 discoveries:
+
+- Replace any placeholder commands with the exact commands found (e.g. `make test` instead of `go test ./...` if a Makefile target exists)
+- Remove service blocks (postgres, redis) if no DB usage was detected in tests
+- Remove lint steps if no linter config was found
+- Add `working-directory:` defaults for monorepo sub-directories
+- Use `go-version-file: go.mod` instead of hardcoding a Go version; use `.nvmrc` for Node if the file exists
+- If no test files were found at all, generate the workflow with a placeholder step and add a comment: `# No tests detected — add your test command here`
 
 ### 7. Create Docker Build Workflow
 
