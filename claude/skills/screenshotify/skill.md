@@ -231,47 +231,112 @@ When creating PRs (in the `/ship` skill), automatically:
 No visual changes detected on: About, Contact
 ```
 
-### 10a. Attach Screenshots to an Existing Open PR
+### 10a. Attach Screenshots to an Open PR
 
-If there is already an open PR for the current branch and UI-related files were changed, attach the screenshots directly to that PR:
+Images referenced by local paths (e.g. `![](screenshots/foo.png)`) do not render on GitHub — they must be served via a URL. The only reliable way to embed screenshots in a PR without an external image host is to commit them to the branch and reference them via their raw GitHub URL.
 
-1. **Detect open PR** for the current branch:
-   ```bash
-   gh pr view --json number,url,body 2>/dev/null
-   ```
-   If no open PR exists, skip this step.
+Follow these steps:
 
-2. **Check if UI changes are present** by inspecting the diff for the PR:
-   ```bash
-   gh pr diff --name-only
-   ```
-   Look for changes in files matching patterns like:
-   - `*.css`, `*.scss`, `*.sass`, `*.less`
-   - `*.tsx`, `*.jsx`, `*.vue`, `*.svelte`
-   - Files inside `components/`, `pages/`, `app/`, `views/`, `layouts/`, `styles/`, `public/`
+#### 1. Check for an open PR
 
-3. **If UI changes are detected**, build a `## 📸 Visual Changes` section with the captured screenshots and append it to the existing PR body:
-   ```bash
-   CURRENT_BODY=$(gh pr view --json body -q '.body')
-   NEW_SECTION="$(cat <<'MARKDOWN'
-   ## 📸 Visual Changes
+```bash
+gh pr view --json number,url,headRefName,body 2>/dev/null
+```
 
-   | Page | Desktop | Tablet | Mobile |
-   |------|---------|--------|--------|
-   | Home | ![home-desktop](screenshots/home-desktop.png) | ![home-tablet](screenshots/home-tablet.png) | ![home-mobile](screenshots/home-mobile.png) |
-   | ... | ... | ... | ... |
-   MARKDOWN
-   )"
+If no open PR exists, skip this step entirely.
 
-   gh pr edit --body "$(printf '%s\n\n%s' "$CURRENT_BODY" "$NEW_SECTION")"
-   ```
+#### 2. Commit and push the screenshots to the current branch
 
-4. **Notify the user** after updating the PR:
-   ```
-   📎 Screenshots attached to PR #<number>: <url>
-   ```
+Screenshots must be in the repo for GitHub to serve them. If they are gitignored, temporarily allow them:
 
-   If the `## 📸 Visual Changes` section already exists in the PR body, replace it rather than appending a duplicate.
+```bash
+# Stage all captured screenshots
+git add screenshots/ -f   # -f to bypass .gitignore if needed
+
+# Only commit if there are staged screenshot changes
+git diff --cached --name-only | grep -q 'screenshots/' && \
+  git commit -m "chore: update screenshots for PR review"
+
+# Push so GitHub can serve the raw files
+git push
+```
+
+If the push fails due to a remote conflict, rebase and retry (same logic as /ship).
+
+#### 3. Build raw GitHub URLs for each screenshot
+
+Get the repo owner/name and branch:
+
+```bash
+REPO=$(gh repo view --json nameWithOwner -q '.nameWithOwner')
+BRANCH=$(git branch --show-current)
+```
+
+For each screenshot file, the raw URL is:
+```
+https://raw.githubusercontent.com/<owner>/<repo>/<branch>/<path-to-file>
+```
+
+Example for `screenshots/home-desktop.png` on branch `feat/ui-update` in `acme/myapp`:
+```
+https://raw.githubusercontent.com/acme/myapp/feat/ui-update/screenshots/home-desktop.png
+```
+
+#### 4. Build the Visual Changes comment
+
+Construct a markdown comment table. Group screenshots by page, with desktop/tablet/mobile columns:
+
+```markdown
+## Screenshots
+
+> Captured at: <ISO timestamp>
+> Branch: `<branch>`
+> Viewports: desktop (1280px), tablet (768px), mobile (375px)
+
+| Page | Desktop | Tablet | Mobile |
+|------|---------|--------|--------|
+| Home | ![home-desktop](https://raw.githubusercontent.com/<repo>/<branch>/screenshots/home-desktop.png) | ![home-tablet](...) | ![home-mobile](...) |
+| Login | ![login-desktop](...) | ![login-tablet](...) | ![login-mobile](...) |
+```
+
+Only include pages where screenshots were actually captured. Skip pages that failed.
+
+#### 5. Post as a PR comment (not body edit)
+
+Post the table as a **new comment** on the PR so it doesn't overwrite the PR description:
+
+```bash
+gh pr comment <PR_NUMBER> --body "$(cat <<'MARKDOWN'
+## Screenshots
+
+> Captured at: 2026-03-13T10:00:00Z
+> Branch: `feat/ui-update`
+
+| Page | Desktop | Tablet | Mobile |
+|------|---------|--------|--------|
+| Home | ![home-desktop](https://raw.githubusercontent.com/acme/myapp/feat/ui-update/screenshots/home-desktop.png) | ![](https://...) | ![](https://...) |
+MARKDOWN
+)"
+```
+
+If a previous screenshotify comment already exists on the PR (check for `## Screenshots` in existing comments), delete the old one first:
+
+```bash
+# Find and delete the previous screenshot comment
+OLD_ID=$(gh pr view <PR_NUMBER> --json comments \
+  --jq '.comments[] | select(.body | startswith("## Screenshots")) | .id' | head -1)
+[ -n "$OLD_ID" ] && gh api -X DELETE /repos/<owner>/<repo>/issues/comments/$OLD_ID
+```
+
+Then post the fresh comment.
+
+#### 6. Notify the user
+
+```
+Screenshots posted to PR #<number>: <pr_url>
+<N> pages, 3 viewports each
+Raw images served from branch: <branch>
+```
 
 ### 11. Report Summary
 
