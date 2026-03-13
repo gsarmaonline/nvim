@@ -19,8 +19,37 @@ You are being invoked via the /ship skill. Your task is to:
    - Pure internal refactors, bug fixes, or test changes → skip README update
    - If updating, keep changes minimal and accurate — only document what actually changed
 6. Stage relevant files (including updated README if modified) and commit the changes using a HEREDOC for the commit message
-7. Push the changes to the remote repository
-8. **Branch-specific behavior**:
+7. **Before pushing, check for and resolve merge conflicts**:
+
+   a. Fetch the latest remote state without merging:
+   ```bash
+   git fetch origin
+   ```
+
+   b. Check whether the local branch is behind the remote:
+   ```bash
+   git status
+   # or: git rev-list --count HEAD..origin/<branch>
+   ```
+
+   c. If the remote has new commits (local branch is behind):
+   - Attempt a rebase onto the remote branch:
+     ```bash
+     git rebase origin/<branch>
+     ```
+   - If the rebase succeeds with no conflicts, continue to push.
+   - If there are rebase conflicts:
+     1. Read every conflicted file using the Read tool
+     2. Resolve each conflict by choosing the correct lines (keep both sets of changes unless they are logically contradictory)
+     3. Stage the resolved files: `git add <file>`
+     4. Continue the rebase: `git rebase --continue`
+     5. Repeat until the rebase completes
+   - If the conflict cannot be safely resolved automatically (e.g. both sides deleted the same function, or there are semantic conflicts requiring human judgement), abort the rebase with `git rebase --abort`, explain the conflict to the user, and stop without pushing.
+
+   d. Only push once the working tree is clean and the rebase is complete.
+
+8. Push the changes to the remote repository
+9. **Branch-specific behavior**:
    - **If on `main` or `master` branch**: Stop here, inform the user that changes were pushed directly to the main branch
    - **If on any other branch**: Create a pull request using gh pr create with:
      - A clear, concise title (under 70 characters)

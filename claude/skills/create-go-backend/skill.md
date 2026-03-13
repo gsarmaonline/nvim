@@ -38,6 +38,10 @@ Create the following layout. Every directory must have at least one file (no emp
 │   │       ├── db.go
 │   │       ├── models.go
 │   │       └── <domain>.sql.go
+│   ├── logger/
+│   │   └── logger.go           # Structured logger (always enabled)
+│   ├── metrics/
+│   │   └── metrics.go          # Prometheus metrics (enabled via METRICS_ENABLED=true)
 │   ├── server/
 │   │   ├── server.go           # Gin engine setup, middleware, route registration
 │   │   └── routes.go           # Route definitions grouped by domain
@@ -60,6 +64,116 @@ Create the following layout. Every directory must have at least one file (no emp
 
 ## Step 3 — Write Each File
 
+### `internal/logger/logger.go`
+
+Structured logger using `log/slog` (standard library, Go 1.21+). Always enabled — every request and error is logged. Log level is controlled by `LOG_LEVEL` env var (default: `info`).
+
+```go
+package logger
+
+import (
+	"log/slog"
+	"os"
+	"strings"
+)
+
+// New creates a structured JSON logger at the level set by LOG_LEVEL.
+// It is intended to be created once at startup and passed through context or as a dependency.
+func New() *slog.Logger {
+	level := slog.LevelInfo
+	switch strings.ToLower(os.Getenv("LOG_LEVEL")) {
+	case "debug":
+		level = slog.LevelDebug
+	case "warn", "warning":
+		level = slog.LevelWarn
+	case "error":
+		level = slog.LevelError
+	}
+
+	handler := slog.NewJSONHandler(os.Stdout, &slog.HandlerOptions{
+		Level: level,
+		// Include source file and line for debug builds
+		AddSource: level == slog.LevelDebug,
+	})
+
+	return slog.New(handler)
+}
+```
+
+Install: no external dependency — `log/slog` is in the standard library since Go 1.21.
+
+---
+
+### `internal/metrics/metrics.go`
+
+Prometheus metrics, **enabled only when `METRICS_ENABLED=true`**. When disabled, the `/metrics` endpoint returns 404 and no instrumentation overhead is added.
+
+```go
+package metrics
+
+import (
+	"os"
+
+	"github.com/gin-gonic/gin"
+	"github.com/prometheus/client_golang/prometheus"
+	"github.com/prometheus/client_golang/prometheus/promauto"
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+)
+
+var (
+	HTTPRequestsTotal = promauto.NewCounterVec(prometheus.CounterOpts{
+		Name: "http_requests_total",
+		Help: "Total number of HTTP requests by method, path, and status.",
+	}, []string{"method", "path", "status"})
+
+	HTTPRequestDuration = promauto.NewHistogramVec(prometheus.HistogramOpts{
+		Name:    "http_request_duration_seconds",
+		Help:    "HTTP request duration in seconds.",
+		Buckets: prometheus.DefBuckets,
+	}, []string{"method", "path"})
+)
+
+// Enabled reports whether metrics are turned on via the METRICS_ENABLED env var.
+func Enabled() bool {
+	return os.Getenv("METRICS_ENABLED") == "true"
+}
+
+// Handler returns the Prometheus HTTP handler for the /metrics endpoint.
+func Handler() gin.HandlerFunc {
+	h := promhttp.Handler()
+	return func(c *gin.Context) {
+		h.ServeHTTP(c.Writer, c.Request)
+	}
+}
+
+// Middleware records request count and duration for every route.
+// Only wire this up when Enabled() is true.
+func Middleware() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		path := c.FullPath()
+		if path == "" {
+			path = "unknown"
+		}
+		timer := prometheus.NewTimer(HTTPRequestDuration.WithLabelValues(c.Request.Method, path))
+		c.Next()
+		timer.ObserveDuration()
+		HTTPRequestsTotal.WithLabelValues(
+			c.Request.Method,
+			path,
+			http.StatusText(c.Writer.Status()),
+		).Inc()
+	}
+}
+```
+
+Install Prometheus client:
+
+```bash
+go get github.com/prometheus/client_golang
+```
+
+---
+
 ### `cmd/server/main.go`
 
 Thin entrypoint only. No business logic, no route definitions, no DB queries.
@@ -68,22 +182,27 @@ Thin entrypoint only. No business logic, no route definitions, no DB queries.
 package main
 
 import (
-	"log"
-
 	"<module>/internal/db"
+	"<module>/internal/logger"
 	"<module>/internal/server"
 )
 
 func main() {
+	log := logger.New()
+
 	database, err := db.Connect()
 	if err != nil {
-		log.Fatalf("failed to connect to database: %v", err)
+		log.Error("failed to connect to database", "error", err)
+		panic(err)
 	}
 	defer database.Close()
+	log.Info("database connected")
 
-	srv := server.New(database)
+	srv := server.New(database, log)
+	log.Info("starting server")
 	if err := srv.Run(); err != nil {
-		log.Fatalf("server error: %v", err)
+		log.Error("server error", "error", err)
+		panic(err)
 	}
 }
 ```
@@ -132,23 +251,53 @@ package server
 import (
 	"database/sql"
 	"fmt"
+	"log/slog"
 	"os"
+	"time"
 
 	"github.com/gin-gonic/gin"
 	"<module>/internal/db/sqlc"
+	"<module>/internal/metrics"
 	"<module>/internal/<domain>"
 )
 
 type Server struct {
 	router  *gin.Engine
 	queries *sqlc.Queries
+	log     *slog.Logger
 }
 
-func New(database *sql.DB) *Server {
+func New(database *sql.DB, log *slog.Logger) *Server {
 	queries := sqlc.New(database)
+
+	router := gin.New() // use gin.New() instead of gin.Default() — we wire our own logger
+
+	// Structured request logger middleware
+	router.Use(func(c *gin.Context) {
+		start := time.Now()
+		c.Next()
+		log.Info("request",
+			"method", c.Request.Method,
+			"path", c.Request.URL.Path,
+			"status", c.Writer.Status(),
+			"duration_ms", time.Since(start).Milliseconds(),
+			"client_ip", c.ClientIP(),
+		)
+	})
+
+	// Panic recovery
+	router.Use(gin.Recovery())
+
+	// Prometheus metrics middleware — only if METRICS_ENABLED=true
+	if metrics.Enabled() {
+		router.Use(metrics.Middleware())
+		log.Info("metrics enabled", "endpoint", "/metrics")
+	}
+
 	s := &Server{
-		router:  gin.Default(),
+		router:  router,
 		queries: queries,
+		log:     log,
 	}
 	s.registerRoutes()
 	return s
@@ -159,6 +308,7 @@ func (s *Server) Run() error {
 	if port == "" {
 		port = "8080"
 	}
+	s.log.Info("listening", "port", port)
 	return s.router.Run(fmt.Sprintf(":%s", port))
 }
 ```
@@ -168,9 +318,25 @@ func (s *Server) Run() error {
 ```go
 package server
 
-import "<module>/internal/<domain>"
+import (
+	"net/http"
+
+	"github.com/gin-gonic/gin"
+	"<module>/internal/metrics"
+	"<module>/internal/<domain>"
+)
 
 func (s *Server) registerRoutes() {
+	// Health check — always available, no auth
+	s.router.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, gin.H{"status": "ok"})
+	})
+
+	// Prometheus metrics — only if enabled
+	if metrics.Enabled() {
+		s.router.GET("/metrics", metrics.Handler())
+	}
+
 	h := <domain>.NewHandler(s.queries)
 
 	v1 := s.router.Group("/api/v1")
@@ -552,15 +718,14 @@ volumes:
 # Server
 PORT=8080
 
-# Database (choose one approach)
+# Database — always use the full URL form
 DATABASE_URL=postgres://postgres:postgres@localhost:5432/<appname>?sslmode=disable
 
-# Or individual vars (used when DATABASE_URL is not set)
-DB_HOST=localhost
-DB_PORT=5432
-DB_USER=postgres
-DB_PASSWORD=postgres
-DB_NAME=<appname>
+# Logging level: debug, info, warn, error (default: info)
+LOG_LEVEL=info
+
+# Metrics — set to "true" to expose /metrics endpoint (Prometheus)
+METRICS_ENABLED=false
 ```
 
 ### `.gitignore`
