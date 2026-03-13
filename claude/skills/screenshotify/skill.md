@@ -46,21 +46,28 @@ Check if Puppeteer or Playwright is installed:
 npm list puppeteer playwright
 ```
 
-If not installed, ask user which to install:
-- **Puppeteer** (lighter, Chrome-only)
-- **Playwright** (heavier, multi-browser support)
+Prefer **Playwright** over Puppeteer for new setups (better API, built-in server management).
 
-Install the chosen tool:
+Install if missing:
 ```bash
-npm install -D puppeteer
-# OR
 npm install -D playwright
 npx playwright install chromium
 ```
 
-### 4. Create Screenshot Script
+### 4. Check for Existing Screenshot Framework
 
-Generate a script `scripts/take-screenshots.js` (or `.mjs` for ESM projects) that:
+**Before creating any script**, check whether the project already has a screenshot framework in place:
+```bash
+ls frontend/scripts/screenshot.js scripts/screenshot.js 2>/dev/null
+```
+
+If `frontend/scripts/screenshot.js` (or equivalent) exists:
+- Ensure Playwright is installed: `cd frontend && npm install`
+- Run the existing framework: `cd frontend && npm run screenshot` (or `make screenshot`)
+- Do NOT overwrite the existing script — it manages its own server lifecycle
+- Skip directly to step 7 (Run Initial Screenshot Capture) using the existing script
+
+If no framework exists, generate a script `scripts/take-screenshots.js` (or `.mjs` for ESM projects) that:
 
 **Key features:**
 - Starts the dev server (or uses production build)
@@ -138,12 +145,26 @@ Update `package.json` to add convenient commands:
 
 ### 7. Run Initial Screenshot Capture
 
-Start the dev server and run the screenshot script:
+If the project has a self-managing screenshot framework (e.g. `npm run screenshot`), just run it — it
+handles server startup internally:
+```bash
+cd frontend && npm run screenshot
+# Or via Makefile:
+make screenshot
+```
+
+For projects without a framework, start the dev server first:
 ```bash
 npm run dev &
 sleep 5  # Wait for server to start
 npm run screenshots
 ```
+
+The self-managing framework supports these env vars:
+- `BASE_URL` — override the default server URL (e.g. `http://localhost:3001` for docker)
+- `START_SERVER=docker` — start the full docker-compose stack first
+- `START_SERVER=dev` — spawn the Next.js dev server
+- `STOP_SERVER=1` — stop docker-compose when done
 
 ### 8. Update CLAUDE.md
 
