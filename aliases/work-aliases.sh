@@ -1,4 +1,3 @@
-export cct="claude --worktree"
-export afk="caffeinate -d"
-
+alias cct="claude --worktree"
+alias afk="caffeinate -d"
 alias src="source ~/.zshrc" 
