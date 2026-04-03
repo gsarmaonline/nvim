@@ -24,6 +24,7 @@ cp ~/.zshrc ~/.zshrc.bak
 cp zshrc ~/.zshrc
 
 cp tmux.conf ~/.tmux.conf
+[ -d ~/.tmux/plugins/tpm ] || git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 
 # For git status coloring
 git config --global color.ui true
