@@ -100,5 +100,6 @@
       "limactl",
       "kubectl"
     ]
-  }
+  },
+  "skipDangerousModePermissionPrompt": true
 }
