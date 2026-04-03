@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit:*)",
+      "Bash(gh pr:*)",
+      "WebSearch",
+      "WebFetch(domain:github.com)",
+      "Read(//Users/gsarma/.claude/**)"
+    ]
+  }
+}

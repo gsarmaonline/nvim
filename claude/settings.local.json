@@ -1,23 +1,5 @@
 {
-  "sandbox": {
-    "enabled": true,
-    "autoAllowBashIfSandboxed": true,
-    "excludedCommands": ["docker", "limactl", "kubectl"],
-    "network": {
-      "allowedDomains": ["*.github.com", "*.npmjs.org", "registry.yarnpkg.com"],
-      "allowUnixSockets": [
-        "/var/run/docker.sock",
-        "/Users/gsarma/.docker/run/docker.sock",
-        "/Users/gsarma/.lima/**"
-      ],
-      "allowLocalBinding": true
-    }
-  },
   "permissions": {
-    "deny": [
-      "Read(.envrc)",
-      "Read(~/.aws/**)"
-    ],
     "allow": [
       "Write(/tmp/**)",
       "Bash(git commit *)",
@@ -91,6 +73,32 @@
       "Bash(bandit *)",
       "Bash(gosec *)",
       "Bash(trufflehog *)"
+    ],
+    "deny": [
+      "Read(.envrc)",
+      "Read(~/.aws/**)"
+    ]
+  },
+  "sandbox": {
+    "enabled": true,
+    "autoAllowBashIfSandboxed": true,
+    "network": {
+      "allowedDomains": [
+        "*.github.com",
+        "*.npmjs.org",
+        "registry.yarnpkg.com"
+      ],
+      "allowUnixSockets": [
+        "/var/run/docker.sock",
+        "/Users/gsarma/.docker/run/docker.sock",
+        "/Users/gsarma/.lima/**"
+      ],
+      "allowLocalBinding": true
+    },
+    "excludedCommands": [
+      "docker",
+      "limactl",
+      "kubectl"
     ]
   }
 }
