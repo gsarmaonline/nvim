@@ -5,7 +5,6 @@ cp -Rf nvim.custom/* ~/.config/nvim/
 
 cp git-completion.sh ~/.git-completion.sh
 cp aliases/git-aliases.sh ~/.git-aliases.sh
-cp aliases/bash-aliases.sh ~/.bash-aliases.sh
 cp aliases/work-aliases.sh ~/.work-aliases.sh
 
 brew install neovim

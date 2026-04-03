@@ -13,8 +13,8 @@ end
 vim.opt.rtp:prepend(lazypath)
 
 -- Set leader key before lazy setup
-vim.g.mapleader = " "
-vim.g.maplocalleader = " "
+vim.g.mapleader = "\\"
+vim.g.maplocalleader = "\\"
 
 -- Neovim settings
 vim.opt.compatible = false
@@ -59,40 +59,14 @@ autocmd FileType erb set tabstop=2|set softtabstop=2|set shiftwidth=2|set expand
 autocmd FileType go setlocal ts=4 sw=4 sts=4
 ]])
 
--- General keymappings
+-- General keymappings (non-leader, safe to set before plugins)
 vim.cmd([[
 nnoremap K :grep! "\b<C-R><C-W>\b"<CR>:cw<CR>
 nnoremap ch :%s/\<<C-r><C-w>\>/
-nnoremap <leader>q :bp<CR>
-nnoremap <leader>w :bn<CR>
-nmap <leader>sn :set number<CR>
-nmap <leader>snn :set nonumber<CR>
-nmap <leader>pst :set paste<CR>
-nmap <leader>npst :set nopaste<CR>
-
-" Remove trailing whitespaces
-nmap <leader>pw :%s/\s\+$//e<CR>
-
-" Mouse strategy
-nmap <leader>mc :set mouse=c<CR>
-nmap <leader>ma :set mouse=a<CR>
-
-" Fold strategy
-nmap <leader>fi :set foldenable foldmethod=indent<CR>
-nmap <leader>fn :set nofoldenable<CR>
 
 " CTags bindings
 map <C-\> :tab split<CR>:exec("tag ".expand("<cword>"))<CR>
 map <A-]> :vsp <CR>:exec("tag ".expand("<cword>"))<CR>
-
-" Save keybindings
-nmap <leader>s :w<CR>
-nmap <leader>ss :wq<CR>
-imap <leader>s <Esc>:w<CR>i
-imap <leader>ss <Esc>:wq<CR>
-
-nnoremap <leader>h :noh<return><esc>
-noremap <leader>a ggVG
 ]])
 
 -- Plugin specifications
@@ -231,4 +205,34 @@ nnoremap <leader>f :execute 'Telescope live_grep_args default_text=' . expand('<
 -- GitHub Linker keymapping
 vim.cmd([[
 noremap <leader>link :GithubLink<CR>
+]])
+
+-- Leader keymappings (after lazy.setup so plugins don't override them)
+vim.cmd([[
+nnoremap <leader>q :bp<CR>
+nnoremap <leader>w :bn<CR>
+nmap <leader>sn :set number<CR>
+nmap <leader>snn :set nonumber<CR>
+nmap <leader>pst :set paste<CR>
+nmap <leader>npst :set nopaste<CR>
+
+" Remove trailing whitespaces
+nmap <leader>pw :%s/\s\+$//e<CR>
+
+" Mouse strategy
+nmap <leader>mc :set mouse=c<CR>
+nmap <leader>ma :set mouse=a<CR>
+
+" Fold strategy
+nmap <leader>fi :set foldenable foldmethod=indent<CR>
+nmap <leader>fn :set nofoldenable<CR>
+
+" Save keybindings
+nmap <leader>s :w<CR>
+nmap <leader>ss :wq<CR>
+imap <leader>s <Esc>:w<CR>i
+imap <leader>ss <Esc>:wq<CR>
+
+nnoremap <leader>h :noh<return><esc>
+noremap <leader>a ggVG
 ]])
