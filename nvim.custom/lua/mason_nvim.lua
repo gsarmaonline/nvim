@@ -26,6 +26,15 @@ require'lspconfig'.gopls.setup{
   },
 }
 require'lspconfig'.terraformls.setup{}
+require'lspconfig'.rust_analyzer.setup{
+  filetypes = { "rust" },
+  settings = {
+    ["rust-analyzer"] = {
+      cargo = { allFeatures = true },
+      checkOnSave = { command = "clippy" },
+    },
+  },
+}
 require'lspconfig'.pylsp.setup{
   filetypes = { "python" },
   settings = {
