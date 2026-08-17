@@ -1,6 +1,6 @@
 ---
 name: code-env
-description: Generate .env.example from repository secrets and environment variables
+description: Generate .env.example from repository secrets and environment variables. Use when the user asks to document the environment variables, create or refresh a .env.example, or wonders what a new developer must configure.
 ---
 
 You are being invoked via the /code-env skill. Your task is to scan the repository for environment variables and secrets, then generate or update a `.env.example` file with appropriate documentation.

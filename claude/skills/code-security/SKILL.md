@@ -1,6 +1,6 @@
 ---
 name: code-security
-description: Scan a repository for security vulnerabilities across dependencies, code, secrets, and API surface
+description: Scan a repository for security vulnerabilities across dependencies, code, secrets, and API surface. Use when the user asks for a security scan, wants to check for vulnerabilities or leaked secrets, or asks whether an API is safely exposed.
 ---
 
 You are being invoked via the /code-security skill. Your task is to perform a comprehensive security audit of the current repository, identify vulnerabilities, and produce an actionable report. You must also specifically assess API security posture.

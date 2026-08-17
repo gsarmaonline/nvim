@@ -1,6 +1,6 @@
 ---
 name: code-ci
-description: Generate GitHub Actions workflows for CI/CD with testing and builds
+description: Generate GitHub Actions workflows for CI/CD with testing and builds. Use when the user asks to set up CI, add a build pipeline, run tests on every push, or wants GitHub Actions for a project that has none.
 ---
 
 You are being invoked via the /code-ci skill. Your task is to automatically detect project structure and generate comprehensive GitHub Actions workflows for testing and building.

@@ -1,6 +1,6 @@
 ---
 name: pr-review-comments
-description: Address PR review comments and fix failing GitHub Actions
+description: Address PR review comments and fix failing GitHub Actions. Use when the user says address the review comments, CI is red, the checks are failing, or asks you to respond to feedback on a pull request.
 ---
 
 You are being invoked via the /pr-review-comments skill. Your task is to address review comments on a pull request and fix any failing GitHub Actions.

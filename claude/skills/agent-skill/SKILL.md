@@ -1,6 +1,6 @@
 ---
 name: agent-skill
-description: Create a properly structured agent skill — interview for the real workflow, write a focused SKILL.md with correct frontmatter and a discoverable description, then verify it loads
+description: Create a properly structured agent skill — interview for the real workflow, write a focused SKILL.md with correct frontmatter and a discoverable description, then verify it loads. Use when the user asks to make a skill, turn a repeated workflow into a skill, or add a slash command of their own.
 ---
 
 You are invoked via the `/agent-skill` skill. You help the user turn a workflow they repeat

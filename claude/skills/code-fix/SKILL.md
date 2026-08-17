@@ -1,6 +1,6 @@
 ---
 name: code-fix
-description: Repair one defect with the smallest possible change — verify the baseline, fix the root cause, prove it with a test, and commit atomically with a written justification
+description: Repair one defect with the smallest possible change — verify the baseline, fix the root cause, prove it with a test, and commit atomically with a written justification. Use when the user names a specific defect to repair, or asks you to fix a finding minimally and commit it.
 ---
 
 You are invoked via the `/code-fix` skill. You repair **one** defect, minimally, and prove

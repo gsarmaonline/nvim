@@ -1,6 +1,6 @@
 ---
 name: pr-ship
-description: Commit changes and push to remote, creating a PR if on feature branch
+description: Commit changes and push to remote, creating a PR if on feature branch. Use when the user says ship it, push this up, commit and open a PR, or asks you to get the current work onto the remote.
 ---
 
 You are being invoked via the /pr-ship skill. Your task is to:

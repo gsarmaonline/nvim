@@ -1,6 +1,6 @@
 ---
 name: scaffold-app
-description: Scaffold a full-stack app (Go backend + Next.js frontend), wire everything together, verify it runs, and set up CI
+description: Scaffold a full-stack app (Go backend + Next.js frontend), wire everything together, verify it runs, and set up CI. Use when the user asks to start a new full-stack project from scratch, with a backend and a frontend wired together.
 ---
 
 You are being invoked via the /scaffold-app skill. Your task is to orchestrate all relevant skills to produce a complete, runnable, tested full-stack application from scratch.

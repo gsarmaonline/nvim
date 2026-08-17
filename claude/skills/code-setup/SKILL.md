@@ -1,6 +1,6 @@
 ---
 name: code-setup
-description: Verify a machine can build, run, and test a repository — detect the required toolchain, check versions, install what is missing, bootstrap dependencies, and prove the test suite runs
+description: Verify a machine can build, run, and test a repository — detect the required toolchain, check versions, install what is missing, bootstrap dependencies, and prove the test suite runs. Use when the user has just cloned a repository, asks how to run or build it, or reports that the install or the test suite will not work.
 ---
 
 You are invoked via the `/code-setup` skill. Your task is to take a machine from "just cloned

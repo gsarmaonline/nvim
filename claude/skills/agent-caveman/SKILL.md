@@ -1,6 +1,6 @@
 ---
 name: agent-caveman
-description: Compress all conversational output to minimal telegraphic English to cut token use — terse fragments only, full precision kept for code, paths, commands, and numbers
+description: Compress all conversational output to minimal telegraphic English to cut token use — terse fragments only, full precision kept for code, paths, commands, and numbers. Use when the user says be terse, caveman mode, stop wasting tokens, or asks for much shorter replies.
 ---
 
 You are invoked via the `/agent-caveman` skill. Cut all words that carry no information. Stay correct.

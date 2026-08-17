@@ -1,6 +1,6 @@
 ---
 name: planning-prototype
-description: Build a throwaway prototype to answer one design question fast — isolated from production code, optimised for learning speed, and deleted or rewritten once the answer arrives
+description: Build a throwaway prototype to answer one design question fast — isolated from production code, optimised for learning speed, and deleted or rewritten once the answer arrives. Use when the user is unsure which approach works, asks to try something quickly, or wants a spike to settle a design question.
 ---
 
 You are invoked via the `/planning-prototype` skill. You build something **to learn from, not to keep**.

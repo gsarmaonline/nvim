@@ -1,6 +1,6 @@
 ---
 name: agent-context
-description: Add context or requirements to CLAUDE.md file in the repository
+description: Add context or requirements to CLAUDE.md file in the repository. Use when the user says remember this, always do X in this project, note that we use Y, or asks you to record a convention so future sessions follow it.
 ---
 
 You are being invoked via the /agent-context skill. Your task is to add information to the CLAUDE.md file in the repository.

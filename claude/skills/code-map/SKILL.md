@@ -1,6 +1,6 @@
 ---
 name: code-map
-description: Map an unfamiliar codebase end to end — entrypoints, data flow, build graph, test infrastructure — and write an ARCHITECTURE map before changing any code
+description: Map an unfamiliar codebase end to end — entrypoints, data flow, build graph, test infrastructure — and write an ARCHITECTURE map before changing any code. Use when the user asks how a codebase is structured, where to start in an unfamiliar repository, or wants the architecture written down before any change begins.
 ---
 
 You are invoked via the `/code-map` skill. Your task is to read an unfamiliar

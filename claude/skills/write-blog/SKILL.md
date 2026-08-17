@@ -1,6 +1,6 @@
 ---
 name: write-blog
-description: Given a repo, task, or document, generate a well-structured technical blog post in Markdown
+description: Given a repo, task, or document, generate a well-structured technical blog post in Markdown. Use when the user asks for a blog post, wants work written up as an article, or asks to publish what was built.
 ---
 
 You are being invoked via the /write-blog skill. Your task is to produce a high-quality technical blog post in Markdown format based on the provided input — which may be a repository, a completed task description, a document, or a combination.

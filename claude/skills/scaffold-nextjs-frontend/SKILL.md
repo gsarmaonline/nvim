@@ -1,6 +1,6 @@
 ---
 name: scaffold-nextjs-frontend
-description: Scaffold a Next.js frontend, detect an existing backend, and wire up Docker and Makefile commands
+description: Scaffold a Next.js frontend, detect an existing backend, and wire up Docker and Makefile commands. Use when the user asks to create a new Next.js frontend, or to add a web UI to an existing backend.
 ---
 
 You are being invoked via the /scaffold-nextjs-frontend skill. Your task is to scaffold a production-ready Next.js frontend in the current directory, detect any existing backend service, and integrate everything into a unified Docker and Makefile setup.

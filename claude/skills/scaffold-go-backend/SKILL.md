@@ -1,6 +1,6 @@
 ---
 name: scaffold-go-backend
-description: Scaffold a production-ready Go backend with Gin, PostgreSQL, sqlc, Docker, Makefile, and tests
+description: Scaffold a production-ready Go backend with Gin, PostgreSQL, sqlc, Docker, Makefile, and tests. Use when the user asks to create a new Go backend, an API service, or a server from scratch.
 ---
 
 You are being invoked via the /scaffold-go-backend skill. Your task is to scaffold a complete, idiomatic Go backend from scratch in the current directory.

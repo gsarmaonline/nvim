@@ -1,6 +1,6 @@
 ---
 name: code-screenshots
-description: Generate screenshots of all frontend pages using browser automation
+description: Generate screenshots of all frontend pages using browser automation. Use when the user asks to see what the app looks like, capture the UI, or attach visual proof of a frontend change to a pull request.
 ---
 
 You are being invoked via the /code-screenshots skill. Your task is to automatically capture screenshots of all pages in a frontend application using browser automation.

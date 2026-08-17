@@ -33,20 +33,31 @@ which library you audited. Audit both when both exist, and keep them separate in
 
 Every skill must satisfy all of these. Report each failure with the skill name.
 
+Read only the **frontmatter block** — the lines between the first `---` and the second. A skill
+body often contains template examples with their own `name:` and `description:` lines, and
+scanning the whole file reports those as duplicates.
+
 ```bash
 cd "$SK"
 for d in */; do
   x=${d%/}
   f=$(ls "$x" | grep -i '^skill\.md$' | head -1)
-  [ -z "$f" ]        && { echo "NO SKILL FILE   $x"; continue; }
+  [ -z "$f" ] && { echo "NO SKILL FILE   $x"; continue; }
   [ "$f" != "SKILL.md" ] && echo "LOWERCASE FILE  $x/$f"
-  head -1 "$x/$f" | grep -q '^---$' || echo "NO FRONTMATTER  $x"
-  nm=$(grep -m1 '^name:' "$x/$f" | awk '{print $2}')
-  [ "$nm" = "$x" ]   || echo "NAME MISMATCH   dir=$x name=$nm"
-  grep -q '^description:' "$x/$f" || echo "NO DESCRIPTION  $x"
-  awk 'NR>1 && /^---$/{print "ok"; exit}' "$x/$f" | grep -q ok || echo "UNCLOSED FRONTMATTER $x"
+  head -1 "$x/$f" | grep -q '^---$' || { echo "NO FRONTMATTER  $x"; continue; }
+  fm=$(awk 'NR==1&&/^---$/{f=1;next} f&&/^---$/{exit} f' "$x/$f")
+  [ -z "$fm" ] && { echo "UNCLOSED FRONTMATTER  $x"; continue; }
+  nm=$(printf '%s\n' "$fm" | grep -m1 '^name:' | awk '{print $2}')
+  [ "$nm" = "$x" ] || echo "NAME MISMATCH   dir=$x name=$nm"
+  printf '%s\n' "$fm" | grep -q '^description:' || echo "NO DESCRIPTION  $x"
+  printf '%s\n' "$fm" | grep -qiE 'use when|when the user' || echo "NO TRIGGER      $x"
 done
 ```
+
+**No trigger** is a warning, not a failure. The description is the only thing an agent sees when
+deciding whether to load a skill without being told its name. A description that states what the
+skill produces but never the situation that calls for it will only fire when the user types the
+name.
 
 What each failure costs:
 

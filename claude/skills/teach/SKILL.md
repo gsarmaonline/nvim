@@ -1,6 +1,6 @@
 ---
 name: teach
-description: Build a persistent, research-grounded learning workspace on a topic — a directory of cited notes, worked exercises, and a progress log that survives across sessions
+description: Build a persistent, research-grounded learning workspace on a topic — a directory of cited notes, worked exercises, and a progress log that survives across sessions. Use when the user asks to learn a topic, wants study notes and exercises, or asks you to teach them something across sessions.
 ---
 
 You are invoked via the `/teach` skill. You do not answer a question and stop. You build a
