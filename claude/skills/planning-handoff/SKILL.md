@@ -1,6 +1,6 @@
 ---
 name: planning-handoff
-description: Write a complete handoff document so another agent session can continue this work cold — state, decisions, dead ends, next step, and exactly how to verify
+description: Write a complete handoff document so another agent session can continue this work cold — state, decisions, dead ends, next step, and exactly how to verify. Use when the user is ending a session, asks for a handoff, or wants another session to pick this work up cold.
 ---
 
 You are invoked via the `/planning-handoff` skill. You write the document that lets a **fresh session

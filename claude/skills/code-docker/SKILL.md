@@ -1,6 +1,6 @@
 ---
 name: code-docker
-description: Create Dockerfile(s) for a project and optionally add to docker-compose.yml
+description: Create Dockerfile(s) for a project and optionally add to docker-compose.yml. Use when the user asks to containerise a project, dockerise it, add a Dockerfile, or run the app in a container.
 ---
 
 You are being invoked via the /code-docker skill. Your task is to create appropriate Dockerfile(s) for the current project.

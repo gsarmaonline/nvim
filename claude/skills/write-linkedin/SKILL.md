@@ -1,6 +1,6 @@
 ---
 name: write-linkedin
-description: Generate a LinkedIn post for a specified blog post, matching the writing style of existing LinkedIn posts
+description: Generate a LinkedIn post for a specified blog post, matching the writing style of existing LinkedIn posts. Use when the user asks for a LinkedIn post, or wants to promote a blog post on social media.
 ---
 
 You are being invoked via the /write-linkedin skill. Your task is to generate a LinkedIn post that introduces and promotes a specified blog post, matching the writing style of existing LinkedIn posts in `blogui/content/linkedin/`.

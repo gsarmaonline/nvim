@@ -1,6 +1,6 @@
 ---
 name: agent-permission
-description: Add a bash command to auto-approved permissions in settings.json
+description: Add a bash command to auto-approved permissions in settings.json. Use when the user says stop asking me to approve X, always allow X, or is repeatedly prompted for permission to run the same command.
 ---
 
 You are being invoked via the /agent-permission skill. Your task is to add a bash command to the auto-approved permissions list so Claude doesn't need to ask for permission to run it.

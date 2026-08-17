@@ -1,6 +1,6 @@
 ---
 name: write-remotion
-description: Given a set of text or concept, create a Remotion animation as React components
+description: Given a set of text or concept, create a Remotion animation as React components. Use when the user asks for an animation, a motion graphic, or a short video made from text or data.
 ---
 
 You are being invoked via the /write-remotion skill. Your task is to create a Remotion animation based on the user's provided text, concept, or data.

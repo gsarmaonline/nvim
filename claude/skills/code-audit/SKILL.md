@@ -1,6 +1,6 @@
 ---
 name: code-audit
-description: Audit an existing codebase for real defects across security, performance, reliability, testing, and tooling — diagnose root causes, verify each finding against the source, and rank them for repair
+description: Audit an existing codebase for real defects across security, performance, reliability, testing, and tooling — diagnose root causes, verify each finding against the source, and rank them for repair. Use when the user asks to audit a codebase, find the bugs or issues across a project, or review an unfamiliar repository for defects.
 ---
 
 You are invoked via the `/code-audit` skill. Your task is to find genuine defects in an

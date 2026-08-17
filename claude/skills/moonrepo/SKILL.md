@@ -1,6 +1,6 @@
 ---
 name: moonrepo
-description: Work in a moonrepo monorepo — discover projects and tasks, run and debug them, read the action graph, and diagnose caching and task-dependency defects in moon.yml
+description: Work in a moonrepo monorepo — discover projects and tasks, run and debug them, read the action graph, and diagnose caching and task-dependency defects in moon.yml. Use when the repository contains a .moon directory, or the user asks how to run tasks, debug caching, or read the task graph in a moonrepo monorepo.
 ---
 
 You are invoked via the `/moonrepo` skill. Use it when a repository contains a `.moon/`

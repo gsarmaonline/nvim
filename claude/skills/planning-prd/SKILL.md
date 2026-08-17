@@ -1,6 +1,6 @@
 ---
 name: planning-prd
-description: Turn the conversation into a structured product requirements document — problem, users, scope, requirements, success measures, risks, and open questions, with every gap marked instead of invented
+description: Turn the conversation into a structured product requirements document — problem, users, scope, requirements, success measures, risks, and open questions, with every gap marked instead of invented. Use when the user asks for a PRD, a requirements document, or wants what was discussed written up as a spec.
 ---
 
 You are invoked via the `/planning-prd` skill. You convert what this conversation has established into

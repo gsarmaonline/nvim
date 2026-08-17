@@ -1,6 +1,6 @@
 ---
 name: code-api-docs
-description: Generate comprehensive API documentation from route definitions and types
+description: Generate comprehensive API documentation from route definitions and types. Use when the user asks to document the API, list the endpoints, or wants a reference for the routes a backend exposes.
 ---
 
 You are being invoked via the /code-api-docs skill. Your task is to automatically extract and document all API routes, methods, and request/response types from a backend application.

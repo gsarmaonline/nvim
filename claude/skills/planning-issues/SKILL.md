@@ -1,6 +1,6 @@
 ---
 name: planning-issues
-description: Convert a plan into independently executable GitHub issues — each one self-contained, scoped to a single deliverable, with acceptance criteria and stated dependencies
+description: Convert a plan into independently executable GitHub issues — each one self-contained, scoped to a single deliverable, with acceptance criteria and stated dependencies. Use when the user asks to turn a plan into issues, file tickets, or break work into pieces other people can pick up.
 ---
 
 You are invoked via the `/planning-issues` skill. You turn a plan into GitHub issues that **a stranger
