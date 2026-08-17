@@ -1,6 +1,6 @@
 ---
 name: pr-merge
-description: Take a change all the way to merged — commit, push, open the pull request if none exists, wait for checks and review, then merge it and clean up. A superset of /pr-ship. Use when the user says merge this, land it, ship and merge, or asks to merge an existing PR.
+description: Take a change all the way to merged — commit, push, open the pull request if none exists, check that it is safe to land, then squash merge it and clean up. Merges without asking for confirmation; a red gate stops it instead. A superset of /pr-ship. Use when the user says merge this, land it, ship and merge, or asks to merge an existing PR.
 ---
 
 You are invoked via `/pr-merge`. You finish the job that `/pr-ship` starts: you get the change
@@ -111,12 +111,10 @@ later, without you watching.
 
 ---
 
-## Step 4 — Confirm with the user
+## Step 4 — State what you are doing, then do it
 
-**Always ask before merging, unless the user already said to merge without asking in this
-session.** "Merge it" earlier in the conversation counts. A general "ship it" does not.
-
-Show them what they are approving, in five lines:
+**Do not ask for permission to merge.** Invoking this skill is the instruction. Print the summary
+and proceed straight to Step 5.
 
 ```
 PR #142  Add order pagination
@@ -124,22 +122,27 @@ PR #142  Add order pagination
   checks    7 passed
   review    approved by 1
   strategy  squash, delete branch after
-  Merge now?
+  Merging.
 ```
+
+The gates in Step 3 still hold. Not asking is not the same as not checking: a red gate stops the
+merge, and you report it instead.
 
 ---
 
 ## Step 5 — Merge
 
-Pick a strategy the repository actually allows:
+**Always squash.** Do not ask, and do not weigh the repository's commit history against it. One
+commit per pull request on the default branch.
+
+Only check the strategy when a squash merge fails:
 
 ```bash
 gh repo view --json squashMergeAllowed,mergeCommitAllowed,rebaseMergeAllowed
 ```
 
-Default to **squash** when it is allowed. It keeps the default branch history one commit per
-pull request. Follow the repository's existing pattern when `git log` on the base branch shows a
-clear convention, and say which you chose.
+If `squashMergeAllowed` is false, say so, name the strategies the repository does allow, and stop.
+Do not silently merge a different way.
 
 ```bash
 gh pr merge <number> --squash --delete-branch
@@ -181,7 +184,8 @@ If you queued auto-merge instead, say so plainly and state what still has to pas
 
 ## Never
 
-- **Never merge without asking**, unless the user authorised it in this session.
+- **Never ask for permission to merge, and never ask which strategy to use.** Invoking this skill
+  is the instruction, and the strategy is always squash.
 - **Never merge with a failing required check.** Fix it or stop.
 - **Never merge over `CHANGES_REQUESTED`** or an unresolved review thread.
 - **Never use `--admin`** to bypass branch protection unless the user explicitly asks. Protection
@@ -193,11 +197,21 @@ If you queued auto-merge instead, say so plainly and state what still has to pas
 - **Never use `--no-verify`** or skip hooks unless asked.
 - **Never use em dashes** in commit messages, PR titles, or PR bodies.
 
-## Stop and ask when
+## Stop when
 
-- The base branch is not what the user expects, for example a stacked PR targeting another
-  feature branch.
-- The PR touches migrations, infrastructure, or anything that deploys on merge. Say what merging
-  will trigger before you ask.
-- The diff has grown well past what the conversation covered.
-- Any gate is red and the fix is not obvious.
+These are not permission questions. Each one means the merge should not happen yet.
+
+- **A gate in Step 3 is red.** Report which, and what would clear it.
+- **Squash merge is disallowed** by the repository.
+- **A conflict needs human judgement.** Abort the rebase and explain it.
+- **The base branch is not the default branch** — a stacked PR targeting another feature branch.
+  Name the base and confirm that is intended, because merging into the wrong base is expensive to
+  undo.
+
+## Say, then proceed
+
+Report these in one line and merge anyway. They are worth knowing, not worth blocking on.
+
+- The PR touches migrations, infrastructure, or anything that deploys on merge. Name what merging
+  will trigger.
+- The diff has grown well past what the conversation covered. Give the file count.
