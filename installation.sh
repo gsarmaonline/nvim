@@ -3,6 +3,23 @@
 mkdir -p ~/.config/nvim/bundle/
 cp -Rf nvim.custom/* ~/.config/nvim/
 
+# Own scripts and their zsh completions
+mkdir -p ~/.local/bin ~/.zsh-completions
+cp bin/code-remote ~/.local/bin/code-remote
+chmod +x ~/.local/bin/code-remote
+cp completions/_code-remote ~/.zsh-completions/_code-remote
+
+# Keep `code` on VS Code; Cursor's installer steals it. `cursor` opens Cursor.
+if [ -d "/Applications/Visual Studio Code.app" ]; then
+  for d in /opt/homebrew/bin /usr/local/bin; do
+    [ -w "$d" ] || continue
+    ln -sfn "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" "$d/code"
+    [ -d "/Applications/Cursor.app" ] \
+      && ln -sfn "/Applications/Cursor.app/Contents/Resources/app/bin/cursor" "$d/cursor"
+    break
+  done
+fi
+
 cp git-completion.sh ~/.git-completion.sh
 cp aliases/git-aliases.sh ~/.git-aliases.sh
 cp aliases/work-aliases.sh ~/.work-aliases.sh

@@ -1,0 +1,73 @@
+#!/usr/bin/env bash
+# Open a folder on a remote host in VS Code via Remote-SSH.
+#
+#   code-remote                 -> $BASE on $HOST
+#   code-remote myproj          -> $BASE/myproj
+#   code-remote sub/dir         -> $BASE/sub/dir
+#   code-remote /etc/nginx      -> absolute path, no base
+#   code-remote ~/Downloads     -> remote home
+#
+# Override with CODE_REMOTE_HOST / CODE_REMOTE_BASE, or --host NAME.
+
+set -euo pipefail
+
+HOST="${CODE_REMOTE_HOST:-macmini}"
+BASE="${CODE_REMOTE_BASE:-/Users/gsarma/work}"
+
+usage() {
+  awk 'NR>1 { if (/^#/) { sub(/^# ?/,""); print } else exit }' "$0"
+  echo
+  echo "current defaults: host=$HOST base=$BASE"
+}
+
+# Wrap a string in single quotes, safe for the remote shell.
+sq() { printf "'%s'" "$(printf '%s' "$1" | sed "s/'/'\\\\''/g")"; }
+
+target=""
+passthru=()
+while [ $# -gt 0 ]; do
+  case "$1" in
+    -h|--help) usage; exit 0 ;;
+    --host)    HOST="${2:?--host needs a value}"; shift 2 ;;
+    --base)    BASE="${2:?--base needs a value}"; shift 2 ;;
+    --)        shift; while [ $# -gt 0 ]; do passthru+=("$1"); shift; done ;;
+    -*)        passthru+=("$1"); shift ;;
+    *)         if [ -z "$target" ]; then target="$1"; else passthru+=("$1"); fi; shift ;;
+  esac
+done
+
+# Resolve the target into an absolute remote path.
+case "$target" in
+  "")        path="$BASE" ;;
+  /*)        path="$target" ;;
+  "~")       path="" ;;                 # remote home, resolved below
+  "~/"*)     path="~KEEP/${target#\~/}" ;;
+  *)         path="$BASE/${target}" ;;
+esac
+
+if [ -z "$path" ] || case "$path" in "~KEEP/"*) true ;; *) false ;; esac; then
+  home=$(ssh -o BatchMode=yes -o ConnectTimeout=8 "$HOST" 'printf %s "$HOME"' 2>/dev/null) || {
+    echo "code-remote: cannot reach $HOST to expand '~'" >&2; exit 1; }
+  if [ -z "$path" ]; then path="$home"; else path="$home/${path#~KEEP/}"; fi
+fi
+
+path="${path%/}"; [ -n "$path" ] || path="/"
+
+# Check the folder exists. Warn but continue if the host is unreachable.
+state=$(ssh -o BatchMode=yes -o ConnectTimeout=8 "$HOST" \
+  "if [ -d $(sq "$path") ]; then echo DIR; elif [ -e $(sq "$path") ]; then echo FILE; else echo MISSING; fi" \
+  2>/dev/null) || state=UNREACHABLE
+
+case "$state" in
+  DIR|FILE) ;;
+  MISSING)
+    echo "code-remote: no such folder on $HOST: $path" >&2
+    echo "available under $BASE:" >&2
+    ssh -o BatchMode=yes "$HOST" "ls -1 $(sq "$BASE") 2>/dev/null" \
+      | head -60 | column -c 100 >&2 || true
+    exit 1 ;;
+  UNREACHABLE)
+    echo "code-remote: warning: cannot reach $HOST right now; opening anyway" >&2 ;;
+esac
+
+exec code --remote "ssh-remote+$HOST" "$path" ${passthru[@]+"${passthru[@]}"}
