@@ -1,0 +1,89 @@
+#compdef code-remote
+#
+# Completion for code-remote. Lists folders on the remote host.
+# Results are cached for 60s per (host, folder) so repeated Tab is instant.
+
+_code_remote_listing() {
+  local host=$1 dir=$2
+  local key cache now stamp
+  key=$(printf '%s%s' "$host" "$dir" | /usr/bin/cksum | cut -d' ' -f1)
+  cache="${TMPDIR:-/tmp}/.code-remote-comp.$UID.$key"
+
+  if [[ -f $cache ]]; then
+    now=$(zstat +mtime "$cache" 2>/dev/null || echo 0)
+    stamp=$(( EPOCHSECONDS - now ))
+    if (( stamp < 60 )); then
+      cat "$cache"
+      return 0
+    fi
+  fi
+
+  ssh -o BatchMode=yes -o ConnectTimeout=5 "$host" \
+      "ls -1p -- ${(q)dir} 2>/dev/null" 2>/dev/null > "$cache.tmp" || { rm -f "$cache.tmp"; return 1; }
+  mv -f "$cache.tmp" "$cache"
+  cat "$cache"
+}
+
+_code-remote() {
+  zmodload -F zsh/stat b:zstat 2>/dev/null
+  zmodload zsh/datetime 2>/dev/null
+
+  local host="${CODE_REMOTE_HOST:-macmini}"
+  local base="${CODE_REMOTE_BASE:-/Users/gsarma/work}"
+
+  local -a specs
+  specs=(
+    '--host[remote host alias]:host:_ssh_hosts'
+    '--base[base folder on the remote]:remote path:'
+    '-n[open in a new window]'
+    '-r[reuse the current window]'
+    '(-h --help)'{-h,--help}'[show usage]'
+    '*:remote folder:->folder'
+  )
+
+  local state
+  _arguments -s -S $specs && return 0
+  [[ $state == folder ]] || return 1
+
+  # Pick up --host / --base typed earlier on this line.
+  local -i i
+  for (( i = 1; i < CURRENT; i++ )); do
+    [[ ${words[i]} == --host ]] && host=${words[i+1]}
+    [[ ${words[i]} == --base ]] && base=${words[i+1]}
+  done
+
+  local cur=${words[CURRENT]}
+  local pathpfx=${cur%/*}
+  [[ $cur == */* ]] && pathpfx="${pathpfx}/" || pathpfx=""
+
+  # Map what is typed onto an absolute folder on the remote.
+  local listdir
+  case $cur in
+    /*)   listdir=${pathpfx:-/} ;;
+    '~'|'~/'*)
+          local home
+          home=$(ssh -o BatchMode=yes -o ConnectTimeout=5 "$host" 'printf %s "$HOME"' 2>/dev/null) || return 1
+          listdir="${home}/${pathpfx#\~/}" ;;
+    *)    listdir="${base}/${pathpfx}" ;;
+  esac
+
+  local -a entries dirs files
+  entries=( ${(f)"$(_code_remote_listing "$host" "$listdir")"} )
+  (( ${#entries} )) || return 1
+
+  local e
+  for e in $entries; do
+    if [[ $e == */ ]]; then
+      dirs+=( "${pathpfx}${e}" )
+    else
+      files+=( "${pathpfx}${e}" )
+    fi
+  done
+
+  # Trailing slash and no space, so Tab keeps descending into subfolders.
+  (( ${#dirs}  )) && _description -V folders expl 'remote folder' && compadd "$expl[@]" -Q -S '' -a dirs
+  (( ${#files} )) && _description -V rfiles  expl 'remote file'   && compadd "$expl[@]" -Q -a files
+  return 0
+}
+
+_code-remote "$@"
