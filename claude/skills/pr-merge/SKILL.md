@@ -1,43 +1,92 @@
 ---
 name: pr-merge
-description: Take a change all the way to merged — commit, push, open the pull request if none exists, check that it is safe to land, then squash merge it and clean up. Merges without asking for confirmation; a red gate stops it instead. A superset of /pr-ship. Use when the user says merge this, land it, ship and merge, or asks to merge an existing PR.
+description: Land a change on the default branch — on a feature branch it commits, pushes, opens a pull request if none exists, checks that it is safe, then squash merges and cleans up; on the default branch it commits and pushes straight there with no branch and no PR. Merges without asking for confirmation; a red gate stops it instead. A superset of /pr-ship. Use when the user says merge this, land it, ship and merge, or asks to merge an existing PR.
 ---
 
-You are invoked via `/pr-merge`. You finish the job that `/pr-ship` starts: you get the change
-committed, pushed, opened as a pull request, and **merged**.
+You are invoked via `/pr-merge`. You get the change landed on the default branch, whichever route
+it takes.
 
-`/pr-ship` stops at the open PR. This skill goes past it.
+Two routes, decided in Step 1:
+
+- **On a feature branch** — commit, push, open a pull request if none exists, check the gates,
+  squash merge, clean up. `/pr-ship` stops at the open PR; this skill goes past it.
+- **Already on the default branch** — commit and push straight to it. No branch, no pull request.
+  The user chose to work there; do not manufacture ceremony around that decision.
 
 ---
 
 ## The rule
 
-> Merging is the point of no return for everybody else. Never merge on a guess.
+> Landing on the default branch is the point of no return for everybody else. Never land on a guess.
 
-A merge lands on a shared branch, triggers deployments, and is awkward to undo. Every gate in
-Step 3 exists because skipping it costs somebody else their afternoon.
+A merge, or a direct push, lands on a shared branch, triggers deployments, and is awkward to undo.
+Every gate in Step 3 exists because skipping it costs somebody else their afternoon.
+
+The direct route has no gates to run, because there is no pull request and no CI result to read.
+That is the trade the user made by working on the default branch. Read the diff carefully before
+you commit, since your own reading is the only review the change will get.
 
 ---
 
-## Step 1 — Find the pull request
+## Step 1 — Work out which route this is
 
 ```bash
 git branch --show-current
+git status --short
+gh repo view --json defaultBranchRef --jq .defaultBranchRef.name
 gh pr view --json number,title,url,state,isDraft,baseRefName,headRefName 2>/dev/null
 ```
 
-Three cases:
-
-| State | Do |
+| State | Route |
 |---|---|
-| A PR exists and is open | Go to Step 2 |
-| No PR, and there are local changes | Run the whole `/pr-ship` flow first, then continue |
+| **On the default branch, with local changes** | **Step 1b — commit and push straight to it. Do not create a branch** |
+| On a feature branch, a PR exists and is open | Step 2 |
+| On a feature branch, no PR, local changes | Run the `/pr-ship` flow to open one, then Step 2 |
 | PR already merged or closed | Say so and stop. Do not reopen without being asked |
-
-If you are on `main` or `master`, stop. There is nothing to merge, and pushing straight to the
-default branch is `/pr-ship`'s job, not this one.
+| On the default branch, nothing to commit | Say there is nothing to do, and stop |
 
 When the user names a PR number or URL, use that instead of the current branch.
+
+---
+
+## Step 1b — Working directly on the default branch
+
+The user is already working on `main`. **Do not create a branch, and do not open a pull request.**
+Branching would only manufacture ceremony around a decision they already made.
+
+Commit with the same discipline `/pr-ship` uses. Read the diff before writing the message, follow
+the repository's existing commit style, and stage exact paths rather than `git add -A`.
+
+```bash
+git diff                       # read it before you describe it
+git log --oneline -10          # match the message style
+git add <exact paths>
+git commit
+```
+
+Then bring the branch up to date and push:
+
+```bash
+git fetch origin
+git rev-list --count HEAD..origin/<default>     # 0 means nothing to rebase onto
+git rebase origin/<default>                     # only when behind
+git push origin <default>
+```
+
+Resolve any rebase conflicts exactly as `/pr-ship` does. If a conflict needs human judgement,
+`git rebase --abort`, explain it, and stop without pushing.
+
+**If the push is rejected**, do not force it. A rejection means one of two things:
+
+| Rejection | Do |
+|---|---|
+| Non-fast-forward, the remote moved | Fetch and rebase again, then push |
+| Branch protection refuses direct pushes | Fall back: create a branch, push it, open a PR, continue to Step 2 |
+
+Say which happened. A protected branch is the repository telling you that direct pushes are not
+allowed, so the fallback is the correct answer, not a workaround.
+
+Then report as in Step 7 and stop. Steps 2 to 6 are about a pull request, and there is none.
 
 ---
 
@@ -180,6 +229,16 @@ MERGED  #142  Add order pagination  →  main
 
 If you queued auto-merge instead, say so plainly and state what still has to pass.
 
+When you pushed straight to the default branch (Step 1b), report that shape instead. Say plainly
+that no pull request was involved, so nobody reading later assumes one was reviewed:
+
+```
+PUSHED  main  (direct, no PR)
+  commit     abc1234  Add order pagination
+  files      3 changed, +48 / -12
+  remote     origin/main up to date
+```
+
 ---
 
 ## Never
@@ -190,7 +249,11 @@ If you queued auto-merge instead, say so plainly and state what still has to pas
 - **Never merge over `CHANGES_REQUESTED`** or an unresolved review thread.
 - **Never use `--admin`** to bypass branch protection unless the user explicitly asks. Protection
   rules exist because a human decided they should.
-- **Never force push to `main` or `master`.** Use `--force-with-lease` on feature branches only.
+- **Never force push to `main` or `master`**, on either route. Use `--force-with-lease` on feature
+  branches only. A rejected push to the default branch means rebase or fall back to a PR, never
+  force.
+- **Never open a pull request when the user is already working on the default branch.** Branching
+  around a decision they already made is ceremony, not safety.
 - **Never delete a branch with `-D`.**
 - **Never merge a draft** without asking first.
 - **Never commit a file that likely holds a secret** — `.env`, credentials, keys.
