@@ -19,8 +19,13 @@ depth comes later when a specific area is under suspicion.
 - Read only. Do not edit, format, or "fix" anything.
 - Prefer reading configuration and entrypoints over reading every file.
 - Record file paths as `path/to/file.py:42` so they stay clickable.
-- If something looks wrong while you map, do NOT fix it. Add it to a **Suspicions** list at the
-  end of the map. That list is the seed for a later audit.
+- **Describe, do not judge.** The map records what the system *is*, not what is wrong with it.
+  Finding defects is `/code-audit`'s job, and it sweeps its own checklists. A map that
+  pre-judges makes the audit derivative — a domain you skipped here never gets swept there.
+- Record a **fact**, not a verdict. "`Order.items` declares no loader strategy" belongs in the
+  map. "That is an N+1" does not.
+- If you could not resolve something, put it in **Open questions**. That is a gap in the map,
+  not an accusation about the code.
 
 ---
 
@@ -154,9 +159,9 @@ Read the workspace configuration and record how to run each of these, exactly:
 | Type check | |
 | Regenerate contracts (proto/GraphQL/OpenAPI) | |
 
-For a task-graph tool (moon, turbo, nx), also record for each important task: its `deps`, its
-`inputs`, and its `outputs`. Wrong `inputs` or missing `outputs` silently break caching, and
-missing `deps` cause tasks to run in the wrong order. Both are common planted defects.
+For a task-graph tool (moon, turbo, nx), record for each important task: its `deps`, its
+`inputs`, and its `outputs`. Write them down exactly, including what each task actually reads.
+Do not judge whether they are correct — `/code-audit` compares them against reality.
 
 If the repository uses moonrepo, invoke the `/moonrepo` skill for the command reference instead
 of guessing at the syntax.
@@ -246,9 +251,11 @@ Task dependency notes: ...
 | Variable | Read at | Default | Notes |
 |---|---|---|---|
 
-## 9. Suspicions
-Things that looked wrong while mapping. Not verified. One line each, with `file:line`.
-| # | Area | Suspicion | File |
+## 9. Open questions
+What you could not determine, and where you stopped. Not defects — unresolved facts.
+Examples: a value whose source you could not trace, a task whose runner you could not find,
+a README instruction that contradicts the scripts.
+| # | Area | What is unresolved | Where you looked |
 |---|---|---|---|
 ```
 
@@ -257,12 +264,13 @@ Things that looked wrong while mapping. Not verified. One line each, with `file:
 ## Step 9 — Report
 
 Give the user a short spoken summary: the shape of the system, the one request trace, the exact
-commands to run and test it, and the top five suspicions in priority order.
+commands to run and test it, and anything you could not resolve.
 
 State plainly whether the test suite passes right now.
 
-If the user wants those suspicions turned into verified findings, point them at
-`/code-audit`. If they want a fix applied, point them at `/code-fix`.
+Do not rank the code by risk and do not name defects, even when one is obvious. Say where the
+map is thin instead — that is what the next step needs from you. Point them at `/code-audit`
+to find defects, and `/code-fix` to repair one.
 
 ---
 
@@ -270,5 +278,5 @@ If the user wants those suspicions turned into verified findings, point them at
 
 - Do not speculate about code you did not open. If you did not read it, say so.
 - Prefer the contract files and the manifests. They are dense with truth per line read.
-- Where two sources disagree — for example the README and the actual scripts — trust the code
-  and record the drift as a suspicion.
+- Where two sources disagree — for example the README and the actual scripts — trust the code,
+  record both readings, and put the disagreement in Open questions.

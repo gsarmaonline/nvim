@@ -115,8 +115,9 @@ ls FINDINGS.md 2>/dev/null || ls ~/work/refactor-assessment/templates/FINDINGS.m
 
 If `FINDINGS.md` does not exist, create it from
 `~/work/refactor-assessment/templates/FINDINGS.md` when that file is present, otherwise from the
-skeleton in Step 6. Record the baseline test line if the user has given you one; leave it marked
-`<not recorded>` if not, and say so.
+document skeleton in `~/.claude/skills/code-report/reference/findings-schema.md`. Record the
+baseline test line if the user has given you one; leave it marked `<not recorded>` if not, and
+say so.
 
 **Before writing, read the existing entries.** If this defect shares a root cause with one
 already filed, do not open a new entry. Add a line to the existing one:
@@ -135,56 +136,12 @@ you did it.
 Assign the next free ID. **Never renumber existing IDs** — commit messages and conversations
 already cite them. If F1 to F3 exist, the new one is F4, even after a deletion.
 
-Append this, and keep every field. An empty field is a signal you skipped a question worth
-asking.
+**Read `~/.claude/skills/code-report/reference/findings-schema.md` before you
+write.** It defines the entry format, the summary table, and the vocabularies. Do not write from
+memory.
 
-````markdown
----
-
-## F<n> — <short title, under 60 characters>
-
-- **Severity:** <CRITICAL|HIGH|MEDIUM|LOW>
-- **Domain:** <Security|Performance|Reliability|Testing|Tooling>
-- **Location:** `path/to/file.py:42`
-- **Confidence:** <Confirmed|Likely>
-- **Status:** open
-- **Found by:** manual review
-
-**What the code does**
-
-```<lang>
-<the smallest quote that shows the defect — 10 lines at most>
-```
-
-**Root cause**
-
-<Why the code is wrong. One or two sentences. Not what happens — why.>
-
-**Trigger**
-
-<Concrete input or state, then the wrong result.>
-
-**Impact**
-
-<Who is affected and how badly.>
-
-**Proposed fix**
-
-<The smallest change that removes the root cause.>
-
-**Migration and compatibility**
-
-<Backfill needed? Wire contract changed? Can old and new run together? Write "none needed" when
-that is true — it shows you asked.>
-
-**Test that would catch it**
-
-<The assertion that fails before the fix and passes after.>
-
-**Verification notes**
-
-<What you checked, and what you did not. Required when confidence is Likely.>
-````
+Fill every one of the 14 fields. An empty field is a signal you skipped a question worth asking.
+Set `Found by: manual review`.
 
 Then update the summary table at the top of the file. Add one row:
 
@@ -199,12 +156,26 @@ Re-read both after writing.
 
 ## Step 7 — Status updates
 
-Called as `/code-finding F2 fixed abc1234`, or `documented`, or `open`.
+Called as `/code-finding F2 fixed abc1234`, or `documented`, `open`, or `withdrawn <reason>`.
 
 Change two places, always both:
 
-1. The `**Status:**` line in the entry, to `fixed in \`abc1234\`` or `documented` or `open`.
+1. The `**Status:**` line in the entry, to `fixed in \`abc1234\``, `documented`, `open`, or
+   `withdrawn`.
 2. The status cell in the summary table row.
+
+For `withdrawn`, keep the entry and its ID. Never delete it, and never renumber around it.
+Replace the body with the reason:
+
+```markdown
+## F5 — withdrawn
+
+Filed as a missing ownership check. `require_owner` at `deps.py:22` already covers this path.
+Verified by reading the router's dependency chain.
+```
+
+A withdrawn finding with an honest reason reads better than a gap in the numbering. It shows you
+checked your own work.
 
 For `fixed`, also append the verification line to that entry:
 

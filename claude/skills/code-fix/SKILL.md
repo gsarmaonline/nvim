@@ -174,14 +174,45 @@ them. Read `git log` before you write the first one.
 
 ---
 
+## Step 7b — Update FINDINGS.md, but do not commit it
+
+Only when `FINDINGS.md` exists and this defect has an entry there. The format is defined in
+`~/.claude/skills/code-report/reference/findings-schema.md` — read it if you are unsure of a field name.
+
+**Never stage `FINDINGS.md` with the code.** The code commit stays atomic — one defect, one
+diff. The document is committed on its own at close-out.
+
+Change three things in the file, all of them:
+
+1. The `**Status:**` line in the entry → `fixed in \`<short sha>\``
+2. The status cell in that row of the summary table
+3. Append the verification line to the entry:
+
+```markdown
+**Verification:** `<test command>` — <N passed> before, <N passed> after. New test: `<test name>`.
+```
+
+Take the sha from `git rev-parse --short HEAD`. Take the numbers from your own Step 1 and Step 6
+runs. **Never invent either.**
+
+If the entry has no ID because the user found this by hand, say so and suggest
+`/code-finding <description>` to file it. Do not write an entry yourself — that is not this
+skill's job.
+
+Skipping this step is the most common way a good fix scores badly. The code is repaired, the
+document still says `open`, and the reviewer cannot tell what you did.
+
+---
+
 ## Step 8 — Report
 
 Tell the user, briefly:
 - What you fixed and where.
 - The test that now covers it.
 - Suite before and after.
+- Whether you updated `FINDINGS.md`, and that it is left uncommitted on purpose.
 - Anything you deliberately left alone, and why.
-- The next defect you recommend, if there is a list.
+- The next defect you recommend, if there is a list. `/code-report next` ranks them properly.
 
 Be honest. If the suite is still red for a reason you did not cause, say so and say which tests.
 

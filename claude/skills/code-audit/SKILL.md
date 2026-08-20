@@ -29,8 +29,16 @@ dependency and secret scan. Prefer `/code-security` when the request is purely a
 
 ## Step 1 — Orient
 
-If an architecture map already exists (`ARCHITECTURE_MAP.md` or similar), read it and start
-from its **Suspicions** list. If not, spend five minutes on the cheap orientation:
+If an architecture map already exists (`ARCHITECTURE_MAP.md` or similar), read it for
+orientation: the entrypoints, the request trace, the data layer, the task graph, and its **Open
+questions**.
+
+**The map tells you where things are. It does not tell you what is wrong.** It records facts and
+does not judge them, by design. Never treat it as a defect list, and never let it bound your
+sweep — you own the checklists, and every applicable domain gets covered whether the map
+mentioned it or not. A gap in the map is a reason to look harder there, not a reason to skip it.
+
+If no map exists, spend five minutes on the cheap orientation:
 
 ```bash
 ls -la && git log --oneline -15 2>/dev/null
@@ -145,53 +153,15 @@ Confirmed.
 
 Write `FINDINGS.md` at the repository root, or to the path the user names.
 
-````markdown
-# Findings — <repo name>
+**If `FINDINGS.md` already exists, do not overwrite it.** The user may have filed entries by hand
+with `/code-finding`. Read it, take the next free ID, and append. Never renumber.
 
-_Audit only. No code changed. <date>._
+**Read `~/.claude/skills/code-report/reference/findings-schema.md` before you
+write.** It is the single authority on the document skeleton, the summary table, the 14 required
+entry fields, and the status, confidence and severity vocabularies. Do not write the file from
+memory — the field names are matched exactly by `/code-report check`.
 
-Baseline before audit: `<test command>` → <N passed, N failed>.
-
-## Summary
-
-| # | Severity | Domain | Finding | File | Confidence |
-|---|---|---|---|---|---|
-| 1 | CRITICAL | Security | ... | `path:line` | Confirmed |
-
-## Coverage and blind spots
-Audited: ...
-Not audited, and why: ...
-
----
-
-## F1 — <short title>
-
-- **Severity:** CRITICAL
-- **Domain:** Security
-- **Location:** `path/to/file.py:42`
-- **Confidence:** Confirmed
-
-**What the code does**
-```python
-<the smallest quote that shows the defect>
-```
-
-**Root cause**
-One or two sentences. Why the code is wrong, not just that it is.
-
-**Trigger**
-Concrete input or state, then the wrong result.
-
-**Impact**
-Who is affected, and how badly.
-
-**Proposed fix**
-The smallest change that removes the root cause. Note if it needs a migration or a staged
-rollout, and say what preserves backwards compatibility.
-
-**Test that would catch it**
-The assertion that fails before the fix and passes after.
-````
+Fill every entry with `Found by: /code-audit` and `Status: open`.
 
 ---
 

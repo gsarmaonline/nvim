@@ -5,6 +5,12 @@ description: Manage the FINDINGS.md document as a whole — report status, recom
 
 You are invoked via `/code-report`. You own the **document**, not any single entry.
 
+**You own the schema too.** `~/.claude/skills/code-report/reference/findings-schema.md`
+is the single authority on the format of `FINDINGS.md`, and it lives in this skill's directory.
+`/code-audit`, `/code-finding`, and `/code-fix` all read it before they write. Load it before
+any mode that inspects or rewrites the document — Steps 4, 5, and 6 all depend on it. If the
+format must change, change that file first, then confirm the other three still agree.
+
 Division of labour — do not cross it:
 
 | Skill | Job |
@@ -191,6 +197,29 @@ What you did not look at, and why. Name the subsystems, not "everything else".
 
 **4. Add a one-paragraph opening** stating what you found, what you fixed, and what you would do
 next with more time. Put it at the top. It is the first thing anybody reads.
+
+**4b. If the user was given a list of issues**, add the reconciliation table above everything
+else. Ask whether they were given one; do not assume. It is the artifact that shows judgement,
+because it separates what they were told from what is actually wrong:
+
+```markdown
+## Their list vs. what is actually wrong
+
+| Their issue | Reported symptom | Actual root cause | File | Status |
+|---|---|---|---|---|
+| #1 | Orders page slow | Lazy `Order.items`, N+1 at scale | `models.py:64` | fixed `abc1234` |
+| #2 | Orders page slow on filter | Same cause as #1 | `models.py:64` | covered by #1 |
+| #4 | Login sometimes fails | Not reproducible; see notes | — | not a bug |
+
+## Not on their list
+
+| # | Sev | Finding | File | Status |
+|---|---|---|---|---|
+| N1 | CRITICAL | `GetOrder` has no ownership check | `service.py:88` | fixed `def5678` |
+```
+
+Two rows in that second table are worth more than five routine fixes from the first. Collapsing
+several of their tickets into one root cause belongs in the opening paragraph — say it plainly.
 
 **5. Commit the document on its own:**
 
