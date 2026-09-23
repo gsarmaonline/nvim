@@ -40,6 +40,9 @@ cp ~/.zshrc ~/.zshrc.bak
 cp zshrc ~/.zshrc
 
 cp tmux.conf ~/.tmux.conf
+mkdir -p ~/.tmux/scripts
+cp tmux/scripts/apply-theme.sh tmux/scripts/watch-theme.sh ~/.tmux/scripts/
+chmod +x ~/.tmux/scripts/apply-theme.sh ~/.tmux/scripts/watch-theme.sh
 [ -d ~/.tmux/plugins/tpm ] || git clone https://github.com/tmux-plugins/tpm ~/.tmux/plugins/tpm
 tmux source-file ~/.tmux.conf
 
