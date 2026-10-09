@@ -17,9 +17,9 @@ TPM keybinds:
 - `prefix + I` - Install plugins
 - `prefix + U` - Update plugins
 
-## ZSH configurations
-- Download zsh-completions
-- Download oh my zsh
+## Shell configurations
+- macOS: zsh with oh-my-zsh, zsh-autosuggestions, zsh-syntax-highlighting (`zshrc`)
+- Ubuntu: bash. `bashrc` is copied to `~/.bashrc.custom` and sourced from the existing `~/.bashrc`
 
 ## Work Aliases
 Custom shell aliases defined in `aliases/work-aliases.sh`:
@@ -43,9 +43,10 @@ Custom skills in `claude/skills/` (symlinked to `~/.claude/skills`):
 ## Installation
 
 ### Ubuntu
-ZSH is not available by default.
-Run `apt install zsh -y`, enter into `zsh`
-and then run `bash installation.sh`
+Sets up bash (not zsh). Run from the repository root:
+```bash
+bash installation.sh
+```
 
 ### Macbook
 The step will install neovim on your macbook, copy the required `init.vim` and install

@@ -1,6 +1,7 @@
 #!/bin/bash
-# Installs the nvim, zsh, tmux, and Claude Code configuration on macOS or
-# Ubuntu/Debian. Run it from the repository root.
+# Installs the nvim, shell, tmux, and Claude Code configuration on macOS or
+# Ubuntu/Debian. Run it from the repository root. The shell setup is zsh
+# (oh-my-zsh) on macOS and bash on Linux.
 
 set -e
 
@@ -21,7 +22,7 @@ if [ "$OS" = "Darwin" ]; then
   brew install neovim tmux
 else
   sudo apt-get update
-  sudo apt-get install -y git curl zsh tmux
+  sudo apt-get install -y git curl tmux bash-completion
 
   # apt's neovim is too old on most Ubuntu releases; install the official
   # release tarball into ~/.local instead.
@@ -43,11 +44,10 @@ fi
 mkdir -p ~/.config/nvim/bundle/
 cp -Rf nvim.custom/* ~/.config/nvim/
 
-# Own scripts and their zsh completions
-mkdir -p ~/.local/bin ~/.zsh-completions
+# Own scripts
+mkdir -p ~/.local/bin
 cp bin/code-remote ~/.local/bin/code-remote
 chmod +x ~/.local/bin/code-remote
-cp completions/_code-remote ~/.zsh-completions/_code-remote
 
 # Keep `code` on VS Code; Cursor's installer steals it. `cursor` opens Cursor.
 if [ -d "/Applications/Visual Studio Code.app" ]; then
@@ -68,23 +68,29 @@ cp aliases/work-aliases.sh ~/.work-aliases.sh
 nvim -c 'PluginInstall' -c 'qa!'
 
 # ------------------------------------------------------------------------------
-# zsh
+# Shell: zsh on macOS, bash on Linux
 # ------------------------------------------------------------------------------
-# RUNZSH=no keeps the installer from dropping into a new shell and halting
-# this script; CHSH=no because the shell change is handled below.
-[ -d ~/.oh-my-zsh ] || RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
+if [ "$OS" = "Darwin" ]; then
+  mkdir -p ~/.zsh-completions
+  cp completions/_code-remote ~/.zsh-completions/_code-remote
 
-ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
-[ -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] || git clone https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
-[ -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] || git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
-[ -d "$ZSH_CUSTOM/themes/powerlevel10k" ] || git clone https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
+  # RUNZSH=no keeps the installer from dropping into a new shell and halting
+  # this script; CHSH=no leaves the login shell alone.
+  [ -d ~/.oh-my-zsh ] || RUNZSH=no CHSH=no sh -c "$(curl -fsSL https://raw.githubusercontent.com/ohmyzsh/ohmyzsh/master/tools/install.sh)"
 
-[ -f ~/.zshrc ] && cp ~/.zshrc ~/.zshrc.bak
-cp zshrc ~/.zshrc
+  ZSH_CUSTOM="${ZSH_CUSTOM:-$HOME/.oh-my-zsh/custom}"
+  [ -d "$ZSH_CUSTOM/plugins/zsh-autosuggestions" ] || git clone https://github.com/zsh-users/zsh-autosuggestions.git "$ZSH_CUSTOM/plugins/zsh-autosuggestions"
+  [ -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] || git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
+  [ -d "$ZSH_CUSTOM/themes/powerlevel10k" ] || git clone https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
 
-# Ubuntu defaults to bash; make zsh the login shell.
-if [ "$OS" = "Linux" ] && [ "$(basename "${SHELL:-}")" != "zsh" ]; then
-  sudo chsh -s "$(command -v zsh)" "$USER"
+  [ -f ~/.zshrc ] && cp ~/.zshrc ~/.zshrc.bak
+  cp zshrc ~/.zshrc
+else
+  # Keep the distro's ~/.bashrc and source ours from it, once.
+  cp bashrc ~/.bashrc.custom
+  touch ~/.bashrc
+  grep -qxF '[ -f ~/.bashrc.custom ] && source ~/.bashrc.custom' ~/.bashrc \
+    || printf '\n[ -f ~/.bashrc.custom ] && source ~/.bashrc.custom\n' >> ~/.bashrc
 fi
 
 # ------------------------------------------------------------------------------

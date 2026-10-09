@@ -1,6 +1,10 @@
 alias cc="claude --dangerously-skip-permissions"
 alias cct="cc --worktree"
-alias src="source ~/.zshrc" 
+if [ -n "$BASH_VERSION" ]; then
+  alias src="source ~/.bashrc"
+else
+  alias src="source ~/.zshrc"
+fi
 alias nv="nvim"
 
 # macOS-only helpers
