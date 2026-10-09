@@ -40,15 +40,21 @@ else
     *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
   esac
   mkdir -p ~/.local/bin ~/.local/opt
-  # Download to a file first: piping curl into tar hides a failed download.
-  NVIM_TGZ="$(mktemp)"
-  if curl -fsSL -o "$NVIM_TGZ" "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
-      && tar -xzf "$NVIM_TGZ" -C ~/.local/opt; then
-    ln -sfn ~/.local/opt/nvim-linux-${NVIM_ARCH}/bin/nvim ~/.local/bin/nvim
+  # Download and extract into a staging dir next to the final one, then swap
+  # it in with a rename. A failed or interrupted run leaves the previous
+  # install untouched, and no stale files from an older release linger.
+  NVIM_DIR="$HOME/.local/opt/nvim-linux-${NVIM_ARCH}"
+  NVIM_STAGE="$(mktemp -d "$HOME/.local/opt/.nvim-stage.XXXXXX")"
+  if curl -fsSL -o "$NVIM_STAGE/nvim.tar.gz" "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
+      && tar -xzf "$NVIM_STAGE/nvim.tar.gz" -C "$NVIM_STAGE" \
+      && [ -x "$NVIM_STAGE/nvim-linux-${NVIM_ARCH}/bin/nvim" ]; then
+    rm -rf "$NVIM_DIR"
+    mv "$NVIM_STAGE/nvim-linux-${NVIM_ARCH}" "$NVIM_DIR"
+    ln -sfn "$NVIM_DIR/bin/nvim" ~/.local/bin/nvim
   else
     warn "neovim download failed; install nvim manually and re-run this script"
   fi
-  rm -f "$NVIM_TGZ"
+  rm -rf "$NVIM_STAGE"
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
@@ -101,7 +107,11 @@ if [ "$OS" = "Darwin" ]; then
   [ -d "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting" ] || git clone https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZSH_CUSTOM/plugins/zsh-syntax-highlighting"
   [ -d "$ZSH_CUSTOM/themes/powerlevel10k" ] || git clone https://github.com/romkatv/powerlevel10k.git "$ZSH_CUSTOM/themes/powerlevel10k"
 
-  [ -f ~/.zshrc ] && cp ~/.zshrc ~/.zshrc.bak
+  # Only back up a ~/.zshrc that differs from ours; otherwise a re-run would
+  # overwrite the real backup with our own copy.
+  if [ -f ~/.zshrc ] && ! cmp -s zshrc ~/.zshrc; then
+    cp ~/.zshrc ~/.zshrc.bak
+  fi
   cp zshrc ~/.zshrc
 else
   # Keep the distro's ~/.bashrc and source ours from it, once.
