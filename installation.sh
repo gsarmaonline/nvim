@@ -43,18 +43,28 @@ else
   # Download and extract into a staging dir next to the final one, then swap
   # it in with a rename. A failed or interrupted run leaves the previous
   # install untouched, and no stale files from an older release linger.
+  #
+  # The official build needs a recent glibc and doesn't run on older distros
+  # such as Ubuntu 20.04. neovim/neovim-releases publishes the same versions
+  # built against glibc 2.17, so fall back to it when the official binary
+  # fails to start here.
   NVIM_DIR="$HOME/.local/opt/nvim-linux-${NVIM_ARCH}"
-  NVIM_STAGE="$(mktemp -d "$HOME/.local/opt/.nvim-stage.XXXXXX")"
-  if curl -fsSL -o "$NVIM_STAGE/nvim.tar.gz" "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
-      && tar -xzf "$NVIM_STAGE/nvim.tar.gz" -C "$NVIM_STAGE" \
-      && [ -x "$NVIM_STAGE/nvim-linux-${NVIM_ARCH}/bin/nvim" ]; then
-    rm -rf "$NVIM_DIR"
-    mv "$NVIM_STAGE/nvim-linux-${NVIM_ARCH}" "$NVIM_DIR"
-    ln -sfn "$NVIM_DIR/bin/nvim" ~/.local/bin/nvim
-  else
-    warn "neovim download failed; install nvim manually and re-run this script"
-  fi
-  rm -rf "$NVIM_STAGE"
+  NVIM_INSTALLED=
+  for NVIM_REPO in neovim/neovim neovim/neovim-releases; do
+    NVIM_STAGE="$(mktemp -d "$HOME/.local/opt/.nvim-stage.XXXXXX")"
+    if curl -fsSL -o "$NVIM_STAGE/nvim.tar.gz" "https://github.com/${NVIM_REPO}/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
+        && tar -xzf "$NVIM_STAGE/nvim.tar.gz" -C "$NVIM_STAGE" \
+        && "$NVIM_STAGE/nvim-linux-${NVIM_ARCH}/bin/nvim" --version >/dev/null 2>&1; then
+      rm -rf "$NVIM_DIR"
+      mv "$NVIM_STAGE/nvim-linux-${NVIM_ARCH}" "$NVIM_DIR"
+      ln -sfn "$NVIM_DIR/bin/nvim" ~/.local/bin/nvim
+      NVIM_INSTALLED=1
+    fi
+    rm -rf "$NVIM_STAGE"
+    [ -n "$NVIM_INSTALLED" ] && break
+  done
+  [ -n "$NVIM_INSTALLED" ] \
+    || warn "no neovim build downloaded and ran here; install nvim manually and re-run this script"
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
