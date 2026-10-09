@@ -16,4 +16,4 @@ command -v fnm >/dev/null 2>&1 && eval "$(fnm env --use-on-cd --shell zsh)"
 
 source ~/.work-aliases.sh
 source ~/.git-aliases.sh
-source ~/.bash-aliases.sh
+[ -f ~/.bash-aliases.sh ] && source ~/.bash-aliases.sh

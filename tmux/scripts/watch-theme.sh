@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Watches the macOS system appearance and re-applies the tmux theme
+# Watches the system appearance and re-applies the tmux theme
 # whenever it changes. Runs for as long as the tmux server is alive.
 
 set -uo pipefail
@@ -7,7 +7,7 @@ set -uo pipefail
 last=""
 
 while tmux info >/dev/null 2>&1; do
-  current=$(defaults read -g AppleInterfaceStyle 2>/dev/null || echo "Light")
+  current=$("$(dirname "$0")/detect-theme.sh")
   if [ "$current" != "$last" ]; then
     "$(dirname "$0")/apply-theme.sh"
     last="$current"
