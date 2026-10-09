@@ -11,6 +11,14 @@ case "$OS" in
   *) echo "Unsupported OS: $OS" >&2; exit 1 ;;
 esac
 
+# Non-fatal problems (nvim setup) are collected here and printed at the end,
+# so one broken step doesn't skip the rest of the install.
+WARNINGS=()
+warn() {
+  echo "WARNING: $*" >&2
+  WARNINGS+=("$*")
+}
+
 # ------------------------------------------------------------------------------
 # System packages
 # ------------------------------------------------------------------------------
@@ -32,9 +40,15 @@ else
     *) echo "Unsupported architecture: $(uname -m)" >&2; exit 1 ;;
   esac
   mkdir -p ~/.local/bin ~/.local/opt
-  curl -fsSL "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
-    | tar -xz -C ~/.local/opt
-  ln -sfn ~/.local/opt/nvim-linux-${NVIM_ARCH}/bin/nvim ~/.local/bin/nvim
+  # Download to a file first: piping curl into tar hides a failed download.
+  NVIM_TGZ="$(mktemp)"
+  if curl -fsSL -o "$NVIM_TGZ" "https://github.com/neovim/neovim/releases/latest/download/nvim-linux-${NVIM_ARCH}.tar.gz" \
+      && tar -xzf "$NVIM_TGZ" -C ~/.local/opt; then
+    ln -sfn ~/.local/opt/nvim-linux-${NVIM_ARCH}/bin/nvim ~/.local/bin/nvim
+  else
+    warn "neovim download failed; install nvim manually and re-run this script"
+  fi
+  rm -f "$NVIM_TGZ"
   export PATH="$HOME/.local/bin:$PATH"
 fi
 
@@ -65,7 +79,11 @@ cp aliases/git-aliases.sh ~/.git-aliases.sh
 cp aliases/work-aliases.sh ~/.work-aliases.sh
 
 [ -d ~/.config/nvim/bundle/Vundle.vim ] || git clone https://github.com/VundleVim/Vundle.vim.git ~/.config/nvim/bundle/Vundle.vim
-nvim -c 'PluginInstall' -c 'qa!'
+if ! nvim --version >/dev/null 2>&1; then
+  warn "nvim is missing or does not run; skipped plugin install"
+elif ! nvim -c 'PluginInstall' -c 'qa!'; then
+  warn "nvim plugin install failed; run :PluginInstall in nvim later"
+fi
 
 # ------------------------------------------------------------------------------
 # Shell: zsh on macOS, bash on Linux
@@ -111,3 +129,9 @@ git config --global color.ui true
 mkdir -p ~/.claude
 ln -sfn "$(pwd)/claude/skills" ~/.claude/skills
 ln -sf "$(pwd)/claude/settings.local.json" ~/.claude/settings.json
+
+if [ ${#WARNINGS[@]} -gt 0 ]; then
+  echo >&2
+  echo "Finished with warnings:" >&2
+  printf '  - %s\n' "${WARNINGS[@]}" >&2
+fi
